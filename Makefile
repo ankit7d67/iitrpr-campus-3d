@@ -31,7 +31,7 @@ phone:
 # Full Phase 2 pipeline: fetch OSM, write the audit, then regenerate the facade
 # sheet and campus.json from buildings that fall inside the campus boundary.
 osm: $(SRC)/scripts/fetch_osm.py scripts/osm_audit.py scripts/facade_table.py
-	$(PYTHON) $(SRC)/scripts/fetch_osm.py --bbox-file $(BBOX) --out $(OSM)
+	$(PYTHON) $(SRC)/scripts/fetch_osm.py --bbox-out $(BBOX) --out $(OSM)
 	$(PYTHON) scripts/osm_audit.py
 	$(PYTHON) scripts/facade_table.py
 

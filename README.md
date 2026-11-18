@@ -56,7 +56,9 @@ Next.js static export (React Three Fiber)  ->  GitHub Pages
 ## Values to verify
 
 See [TODO_VERIFY.md](./TODO_VERIFY.md). Every guessed value (floors, colours, heights, roof types)
-must carry `verified=false` and be listed here.
+must carry `verified=false` and be listed here. Also unverified: the OSM duplicate/part
+footprints that are deliberately not extruded, and the campus boundary polygon (349 acres vs the
+~501–525 acres stated by the institute).
 
 ## Licence / attribution
 

@@ -119,7 +119,15 @@ def main() -> int:
     fc = {
         "type": "FeatureCollection",
         "features": [
-            {"type": "Feature", "properties": {"osm_id": b["osm_id"], "name": b["name"], "layer": "building"}, "geometry": b["geometry"]}
+            {"type": "Feature", "properties": {
+                "osm_id": b["osm_id"],
+                "name": b["name"],
+                "layer": "building",
+                "building": b["tags"].get("building"),
+                "levels": b["tags"].get("building:levels"),
+                "height": b["tags"].get("height"),
+                "amenity": b["tags"].get("amenity"),
+            }, "geometry": b["geometry"]}
             for b in buildings
         ] + [
             {"type": "Feature", "properties": {"osm_id": f["osm_id"], "name": f["name"], "layer": "footpath"}, "geometry": f["geometry"]}

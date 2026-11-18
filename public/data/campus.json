@@ -16,12 +16,12 @@
     {
       "id": "BLDG_1032552691",
       "osm_way": 1032552691,
-      "name": "M2 Lecture Hall",
+      "name": "Lecture Hall",
       "aliases": [
-        "M2 Lecture Hall"
+        "Lecture Hall"
       ],
-      "category": "other",
-      "floors": 1,
+      "category": "academic",
+      "floors": 3,
       "roof_type": "flat",
       "wall_color": "#c9c2b4",
       "trim_color": "#4a4a4a",
@@ -29,8 +29,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.4719488862745,
-        "lon": 30.967719629411768
+        "lat": 30.967719629411768,
+        "lon": 76.4719488862745
       },
       "rooms": [],
       "hours": ""
@@ -51,8 +51,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47262014,
-        "lon": 30.9686037
+        "lat": 30.9686037,
+        "lon": 76.47262014
       },
       "rooms": [],
       "hours": ""
@@ -73,8 +73,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47358841428571,
-        "lon": 30.96861444285714
+        "lat": 30.96861444285714,
+        "lon": 76.47358841428571
       },
       "rooms": [],
       "hours": ""
@@ -95,8 +95,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.4746324,
-        "lon": 30.968548682352942
+        "lat": 30.968548682352942,
+        "lon": 76.4746324
       },
       "rooms": [],
       "hours": ""
@@ -117,8 +117,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.46778805,
-        "lon": 30.96690856
+        "lat": 30.96690856,
+        "lon": 76.46778805
       },
       "rooms": [],
       "hours": ""
@@ -139,30 +139,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.4731447,
-        "lon": 30.968582520000002
-      },
-      "rooms": [],
-      "hours": ""
-    },
-    {
-      "id": "BLDG_1039160851",
-      "osm_way": 1039160851,
-      "name": "Building_1039160851",
-      "aliases": [
-        "Building_1039160851"
-      ],
-      "category": "other",
-      "floors": 1,
-      "roof_type": "flat",
-      "wall_color": "#c9c2b4",
-      "trim_color": "#4a4a4a",
-      "roof_color": "#8a8578",
-      "window_pattern": "grid",
-      "verified": false,
-      "location": {
-        "lat": 76.47191053692308,
-        "lon": 30.96778716
+        "lat": 30.968582520000002,
+        "lon": 76.4731447
       },
       "rooms": [],
       "hours": ""
@@ -183,30 +161,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47444496190477,
-        "lon": 30.96739919047619
-      },
-      "rooms": [],
-      "hours": ""
-    },
-    {
-      "id": "BLDG_1349163384",
-      "osm_way": 1349163384,
-      "name": "Building_1349163384",
-      "aliases": [
-        "Building_1349163384"
-      ],
-      "category": "other",
-      "floors": 1,
-      "roof_type": "flat",
-      "wall_color": "#c9c2b4",
-      "trim_color": "#4a4a4a",
-      "roof_color": "#8a8578",
-      "window_pattern": "grid",
-      "verified": false,
-      "location": {
-        "lat": 76.4732173,
-        "lon": 30.96767254166667
+        "lat": 30.96739919047619,
+        "lon": 76.47444496190477
       },
       "rooms": [],
       "hours": ""
@@ -227,8 +183,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.4731969875,
-        "lon": 30.96763433125
+        "lat": 30.96763433125,
+        "lon": 76.4731969875
       },
       "rooms": [],
       "hours": ""
@@ -249,30 +205,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47473257222222,
-        "lon": 30.96844753888889
-      },
-      "rooms": [],
-      "hours": ""
-    },
-    {
-      "id": "BLDG_1349164576",
-      "osm_way": 1349164576,
-      "name": "Building_1349164576",
-      "aliases": [
-        "Building_1349164576"
-      ],
-      "category": "other",
-      "floors": 1,
-      "roof_type": "flat",
-      "wall_color": "#c9c2b4",
-      "trim_color": "#4a4a4a",
-      "roof_color": "#8a8578",
-      "window_pattern": "grid",
-      "verified": false,
-      "location": {
-        "lat": 76.47576446428572,
-        "lon": 30.968829550000002
+        "lat": 30.96844753888889,
+        "lon": 76.47473257222222
       },
       "rooms": [],
       "hours": ""
@@ -293,8 +227,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47571815588235,
-        "lon": 30.968810588235296
+        "lat": 30.968810588235296,
+        "lon": 76.47571815588235
       },
       "rooms": [],
       "hours": ""
@@ -315,8 +249,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.46846973333334,
-        "lon": 30.96860666190476
+        "lat": 30.96860666190476,
+        "lon": 76.46846973333334
       },
       "rooms": [],
       "hours": ""
@@ -337,8 +271,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47059668947368,
-        "lon": 30.96868345263158
+        "lat": 30.96868345263158,
+        "lon": 76.47059668947368
       },
       "rooms": [],
       "hours": ""
@@ -359,8 +293,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47163042777778,
-        "lon": 30.968519669444447
+        "lat": 30.968519669444447,
+        "lon": 76.47163042777778
       },
       "rooms": [],
       "hours": ""
@@ -381,8 +315,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47150267333333,
-        "lon": 30.96836218
+        "lat": 30.96836218,
+        "lon": 76.47150267333333
       },
       "rooms": [],
       "hours": ""
@@ -403,8 +337,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.46988727619048,
-        "lon": 30.96775318095238
+        "lat": 30.96775318095238,
+        "lon": 76.46988727619048
       },
       "rooms": [],
       "hours": ""
@@ -425,8 +359,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.4698652102564,
-        "lon": 30.966935728205126
+        "lat": 30.966935728205126,
+        "lon": 76.4698652102564
       },
       "rooms": [],
       "hours": ""
@@ -447,8 +381,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47129769090908,
-        "lon": 30.966176581818182
+        "lat": 30.966176581818182,
+        "lon": 76.47129769090908
       },
       "rooms": [],
       "hours": ""
@@ -469,8 +403,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.46697147272727,
-        "lon": 30.9685961969697
+        "lat": 30.9685961969697,
+        "lon": 76.46697147272727
       },
       "rooms": [],
       "hours": ""
@@ -491,8 +425,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.46574201538462,
-        "lon": 30.968638846153848
+        "lat": 30.968638846153848,
+        "lon": 76.46574201538462
       },
       "rooms": [],
       "hours": ""
@@ -513,8 +447,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.4661256,
-        "lon": 30.966863760000003
+        "lat": 30.966863760000003,
+        "lon": 76.4661256
       },
       "rooms": [],
       "hours": ""
@@ -535,8 +469,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.46674264444444,
-        "lon": 30.967281488888887
+        "lat": 30.967281488888887,
+        "lon": 76.46674264444444
       },
       "rooms": [],
       "hours": ""
@@ -557,8 +491,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47089439999999,
-        "lon": 30.96667572
+        "lat": 30.96667572,
+        "lon": 76.47089439999999
       },
       "rooms": [],
       "hours": ""
@@ -579,8 +513,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47110826000001,
-        "lon": 30.96669276
+        "lat": 30.96669276,
+        "lon": 76.47110826000001
       },
       "rooms": [],
       "hours": ""
@@ -601,8 +535,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47133514,
-        "lon": 30.966663519999997
+        "lat": 30.966663519999997,
+        "lon": 76.47133514
       },
       "rooms": [],
       "hours": ""
@@ -623,8 +557,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47152215999999,
-        "lon": 30.96676948
+        "lat": 30.96676948,
+        "lon": 76.47152215999999
       },
       "rooms": [],
       "hours": ""
@@ -645,8 +579,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.4717104,
-        "lon": 30.966800499999998
+        "lat": 30.966800499999998,
+        "lon": 76.4717104
       },
       "rooms": [],
       "hours": ""
@@ -667,8 +601,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47638357058824,
-        "lon": 30.966199652941174
+        "lat": 30.966199652941174,
+        "lon": 76.47638357058824
       },
       "rooms": [],
       "hours": ""
@@ -689,8 +623,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47702451176471,
-        "lon": 30.966210341176474
+        "lat": 30.966210341176474,
+        "lon": 76.47702451176471
       },
       "rooms": [],
       "hours": ""
@@ -711,8 +645,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47762367058824,
-        "lon": 30.96622807058824
+        "lat": 30.96622807058824,
+        "lon": 76.47762367058824
       },
       "rooms": [],
       "hours": ""
@@ -733,8 +667,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47640914705882,
-        "lon": 30.96583127647059
+        "lat": 30.96583127647059,
+        "lon": 76.47640914705882
       },
       "rooms": [],
       "hours": ""
@@ -755,8 +689,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47703782352941,
-        "lon": 30.965843017647057
+        "lat": 30.965843017647057,
+        "lon": 76.47703782352941
       },
       "rooms": [],
       "hours": ""
@@ -777,8 +711,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.4776298,
-        "lon": 30.965851811764704
+        "lat": 30.965851811764704,
+        "lon": 76.4776298
       },
       "rooms": [],
       "hours": ""
@@ -799,8 +733,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.4782152923077,
-        "lon": 30.96611646923077
+        "lat": 30.96611646923077,
+        "lon": 76.4782152923077
       },
       "rooms": [],
       "hours": ""
@@ -821,8 +755,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47872364615385,
-        "lon": 30.966123638461536
+        "lat": 30.966123638461536,
+        "lon": 76.47872364615385
       },
       "rooms": [],
       "hours": ""
@@ -843,8 +777,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.46839969333334,
-        "lon": 30.967667979999998
+        "lat": 30.967667979999998,
+        "lon": 76.46839969333334
       },
       "rooms": [],
       "hours": ""
@@ -865,8 +799,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47584021428572,
-        "lon": 30.9682663
+        "lat": 30.9682663,
+        "lon": 76.47584021428572
       },
       "rooms": [],
       "hours": ""
@@ -887,8 +821,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47686062352942,
-        "lon": 30.968683105882352
+        "lat": 30.968683105882352,
+        "lon": 76.47686062352942
       },
       "rooms": [],
       "hours": ""
@@ -909,8 +843,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.4768395283019,
-        "lon": 30.968471813207547
+        "lat": 30.968471813207547,
+        "lon": 76.4768395283019
       },
       "rooms": [],
       "hours": ""
@@ -931,8 +865,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47704765072463,
-        "lon": 30.967904060869564
+        "lat": 30.967904060869564,
+        "lon": 76.47704765072463
       },
       "rooms": [],
       "hours": ""
@@ -953,8 +887,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47700453333333,
-        "lon": 30.967622354545455
+        "lat": 30.967622354545455,
+        "lon": 76.47700453333333
       },
       "rooms": [],
       "hours": ""
@@ -975,8 +909,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47681098,
-        "lon": 30.967281527999997
+        "lat": 30.967281527999997,
+        "lon": 76.47681098
       },
       "rooms": [],
       "hours": ""
@@ -997,8 +931,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47803139999999,
-        "lon": 30.97005343846154
+        "lat": 30.97005343846154,
+        "lon": 76.47803139999999
       },
       "rooms": [],
       "hours": ""
@@ -1019,8 +953,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47885286923078,
-        "lon": 30.97001940769231
+        "lat": 30.97001940769231,
+        "lon": 76.47885286923078
       },
       "rooms": [],
       "hours": ""
@@ -1041,8 +975,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47804174615385,
-        "lon": 30.970386007692305
+        "lat": 30.970386007692305,
+        "lon": 76.47804174615385
       },
       "rooms": [],
       "hours": ""
@@ -1063,8 +997,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47802496923077,
-        "lon": 30.970690638461537
+        "lat": 30.970690638461537,
+        "lon": 76.47802496923077
       },
       "rooms": [],
       "hours": ""
@@ -1085,8 +1019,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.4780333,
-        "lon": 30.971016046153846
+        "lat": 30.971016046153846,
+        "lon": 76.4780333
       },
       "rooms": [],
       "hours": ""
@@ -1107,8 +1041,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47706225789474,
-        "lon": 30.971280652631577
+        "lat": 30.971280652631577,
+        "lon": 76.47706225789474
       },
       "rooms": [],
       "hours": ""
@@ -1129,8 +1063,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47709042,
-        "lon": 30.97068796
+        "lat": 30.97068796,
+        "lon": 76.47709042
       },
       "rooms": [],
       "hours": ""
@@ -1151,8 +1085,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47709219999999,
-        "lon": 30.97089368
+        "lat": 30.97089368,
+        "lon": 76.47709219999999
       },
       "rooms": [],
       "hours": ""
@@ -1173,8 +1107,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47639515555555,
-        "lon": 30.970267266666667
+        "lat": 30.970267266666667,
+        "lon": 76.47639515555555
       },
       "rooms": [],
       "hours": ""
@@ -1195,8 +1129,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.4756989923077,
-        "lon": 30.966835915384614
+        "lat": 30.966835915384614,
+        "lon": 76.4756989923077
       },
       "rooms": [],
       "hours": ""
@@ -1217,8 +1151,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.47554286666667,
-        "lon": 30.967567933333335
+        "lat": 30.967567933333335,
+        "lon": 76.47554286666667
       },
       "rooms": [],
       "hours": ""
@@ -1239,8 +1173,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.46926076666666,
-        "lon": 30.967929333333334
+        "lat": 30.967929333333334,
+        "lon": 76.46926076666666
       },
       "rooms": [],
       "hours": ""
@@ -1261,8 +1195,8 @@
       "window_pattern": "grid",
       "verified": false,
       "location": {
-        "lat": 76.46926470000001,
-        "lon": 30.96777696
+        "lat": 30.96777696,
+        "lon": 76.46926470000001
       },
       "rooms": [],
       "hours": ""

@@ -3,6 +3,10 @@
 
 Phase 3: one row per place. Floors/colours/roof types come from category defaults and are
 marked verified=false; nothing is invented as fact.
+
+Only buildings inside the campus boundary are emitted. Fully contained footprints are
+treated as duplicates/parts of the containing building and are therefore not extruded
+(see build/dedupe.json and TODO_VERIFY.md).
 """
 
 from __future__ import annotations
@@ -26,11 +30,15 @@ DEFAULTS: dict[str, dict[str, Any]] = {
     "other": {"floors": 1, "roof_type": "flat", "wall_color": "#c9c2b4", "trim_color": "#4a4a4a", "roof_color": "#8a8578", "window_pattern": "grid"},
 }
 
+# Pair whose intersection covers at least this share of the smaller footprint is treated as
+# "contained" (duplicate or building part), not as two separate buildings.
+CONTAINED_SHARE = 0.95
+
 
 def category_for(name: str) -> str:
     n = (name or "").lower()
     if any(k in n for k in ("hostel", "dorm", "ganga", "ashoka", "vishnu", "lakshmibai")): return "hostel"
-    if any(k in n for k in ("library", "lab", "institute", "department", "block", "academic")): return "academic"
+    if any(k in n for k in ("library", "lab", "institute", "department", "block", "academic", "lecture", "hall")): return "academic"
     if any(k in n for k in ("gym", "sports", "stadium", "track")): return "sports"
     if any(k in n for k in ("canteen", "mess", "food", "kitchen", "bhavan")): return "food"
     if any(k in n for k in ("hospital", "medical", "health")): return "medical"
@@ -38,39 +46,85 @@ def category_for(name: str) -> str:
     return "other"
 
 
+def to_lonlat(geom: dict) -> dict:
+    """Convert a stored [lat, lon] geometry to GeoJSON [lon, lat]."""
+    if geom.get("type") == "Polygon":
+        return {"type": "Polygon", "coordinates": [[[c[1], c[0]] for c in ring] for ring in geom["coordinates"]]}
+    if geom.get("type") == "LineString":
+        return {"type": "LineString", "coordinates": [[c[1], c[0]] for c in geom["coordinates"]]}
+    return geom
+
+
+def footprint_area_m2(geom) -> float:
+    # 1 deg lat = 111.32 km, 1 deg lon = 85.0 km at this latitude.
+    return geom.area * 111.32 * 85.0 * 1_000_000.0
+
+
 def main() -> int:
     osm = json.load(open("data-src/osm_campus.geojson"))
     bbox = json.load(open("data-src/campus_bbox.json"))
-    boundary = shape(bbox.get("polygon") or {"type": "Polygon", "coordinates": [[[[float(bbox["west"]), float(bbox["south"])], [float(bbox["west"]), float(bbox["north"])], [float(bbox["east"]), float(bbox["north"])], [float(bbox["east"]), float(bbox["south"])], [float(bbox["west"]), float(bbox["south"])]]]]})
-    buildings = []
+    boundary = shape(bbox.get("polygon") or {
+        "type": "Polygon",
+        "coordinates": [[[float(bbox["west"]), float(bbox["south"])], [float(bbox["west"]), float(bbox["north"])],
+                         [float(bbox["east"]), float(bbox["north"])], [float(bbox["east"]), float(bbox["south"])],
+                         [float(bbox["west"]), float(bbox["south"])]]],
+    })
+
+    candidates: list[dict[str, Any]] = []
     for f in osm.get("features", []):
         p = f.get("properties") or {}
         if p.get("layer") != "building":
             continue
-        geom = f.get("geometry") or {}
-        if geom.get("type") == "Polygon":
-            geom = {"type": "Polygon", "coordinates": [[[c[1], c[0]] for c in ring] for ring in geom["coordinates"]]}
-        inside = False
-        try:
-            g = shape(geom)
-            inside = g.is_valid and not g.is_empty and g.intersects(boundary)
-        except Exception:
-            inside = False
-        if not inside:
+        raw = f.get("geometry") or {}
+        if raw.get("type") != "Polygon":
+            continue
+        geom = shape(to_lonlat(raw))
+        if not geom.is_valid or geom.is_empty or not geom.intersects(boundary):
             continue
         osm_id = p.get("osm_id")
-        name = p.get("name") or f"Building_{osm_id}"
+        candidates.append({
+            "osm_id": osm_id,
+            "name": p.get("name"),
+            "geom": geom,
+            "area": footprint_area_m2(geom),
+            "raw": raw,
+        })
+
+    # Keep the named footprint when two footprints are (near-)identical; otherwise the larger.
+    candidates.sort(key=lambda c: (1 if (c["name"] or "").strip() else 0, c["area"]), reverse=True)
+    kept: list[dict[str, Any]] = []
+    dropped: list[dict[str, Any]] = []
+    for c in candidates:
+        duplicate_of = None
+        for k in kept:
+            if not k["geom"].intersects(c["geom"]):
+                continue
+            inter = k["geom"].intersection(c["geom"]).area
+            smaller = min(k["geom"].area, c["geom"].area)
+            if smaller > 0 and inter / smaller >= CONTAINED_SHARE:
+                duplicate_of = k
+                break
+        if duplicate_of is None:
+            kept.append(c)
+        else:
+            dropped.append({
+                "osm_id": c["osm_id"],
+                "name": c["name"],
+                "kept_osm_id": duplicate_of["osm_id"],
+                "kept_name": duplicate_of["name"],
+            })
+
+    kept.sort(key=lambda c: int(c["osm_id"]))
+
+    buildings = []
+    for c in kept:
+        osm_id = c["osm_id"]
+        name = c["name"] or f"Building_{osm_id}"
         cat = category_for(name)
         d = DEFAULTS[cat]
-        geom = f.get("geometry") or {}
-        coords = geom.get("coordinates") or []
-        lat = lon = 0.0
-        if geom.get("type") == "Polygon" and coords:
-            flat = [c[1] for c in coords[0]]
-            lat, lon = sum(flat) / len(flat), sum(c[0] for c in coords[0]) / len(coords[0])
-        elif geom.get("type") == "LineString" and coords:
-            flat = [c[1] for c in coords]
-            lat, lon = sum(flat) / len(flat), sum(c[0] for c in coords) / len(coords)
+        ring = c["raw"]["coordinates"][0]
+        lat = sum(pt[0] for pt in ring) / len(ring)
+        lon = sum(pt[1] for pt in ring) / len(ring)
         buildings.append({
             "id": f"BLDG_{osm_id}",
             "osm_way": osm_id,
@@ -95,7 +149,12 @@ def main() -> int:
         "official_name": "Indian Institute of Technology Ropar",
         "country": "India",
         "polygon": {"type": "Polygon", "coordinates": []},
-        "bbox": {"south": float(bbox.get("boundingbox", ["30.9", "31.1", "77.2", "77.5"])[0]), "north": float(bbox.get("boundingbox", ["30.9", "31.1", "77.2", "77.5"])[1]), "west": float(bbox.get("boundingbox", ["30.9", "31.1", "77.2", "77.5"])[2]), "east": float(bbox.get("boundingbox", ["30.9", "31.1", "77.2", "77.5"])[3])},
+        "bbox": {
+            "south": float(bbox.get("boundingbox", ["30.9", "31.1", "77.2", "77.5"])[0]),
+            "north": float(bbox.get("boundingbox", ["30.9", "31.1", "77.2", "77.5"])[1]),
+            "west": float(bbox.get("boundingbox", ["30.9", "31.1", "77.2", "77.5"])[2]),
+            "east": float(bbox.get("boundingbox", ["30.9", "31.1", "77.2", "77.5"])[3]),
+        },
         "buildings": buildings,
     }
     with open("public/data/campus.json", "w") as f:
@@ -111,7 +170,13 @@ def main() -> int:
                 "", "", "", "false",
             ])
 
-    print(f"facade rows: {len(buildings)}")
+    os.makedirs("build", exist_ok=True)
+    with open("build/dedupe.json", "w") as f:
+        json.dump({"contained_share": CONTAINED_SHARE, "dropped": dropped}, f, indent=2)
+
+    print(f"facade rows: {len(buildings)}  dropped contained footprints: {len(dropped)}")
+    for d in dropped:
+        print(f"  dropped osm_id={d['osm_id']} name={d['name'] or '(unnamed)'} -> part of osm_id={d['kept_osm_id']} ({d['kept_name'] or 'unnamed'})")
     return 0
 
 

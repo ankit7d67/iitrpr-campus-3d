@@ -60,7 +60,7 @@ iitrpr-campus-3d/
 
 - [x] Phase 1 — Environment
 - [x] Phase 2 — Map data (fixed: boundary filter + audit)
-- [x] Phase 3 — Building table and data (regenerated from the 57 in-boundary buildings)
+- [x] Phase 3 — Building table and data (54 buildings: 57 in-boundary minus 3 contained duplicates)
 - [ ] Phase 4 — Blender model (Blender 4.2.16 LTS installed at `C:\Program Files\Blender Foundation\Blender 4.2\blender.exe`, exposed as `$(BLENDER)`; not started yet)
 - [x] Phase 5 — Web app
 - [x] Phase 6 — Tests and deployment (partial: make verify blocked on Phase 4 assets)
@@ -80,6 +80,33 @@ iitrpr-campus-3d/
 - `scripts/facade_table.py` now skips out-of-boundary buildings, so `data-src/facade_sheet.csv`
   and `public/data/campus.json` contain only the 57 in-boundary buildings; the web app
   reads only `public/data/campus.json`, so it inherits the filter.
+
+### Audit review follow-ups
+
+- Contained footprints (≥95% of the smaller footprint) are never extruded twice: the named
+  footprint wins, otherwise the larger. Kept: M2 Lecture Hall, Nalanda library, S Ramanujan
+  building. Skipped and logged in `build/dedupe.json` + `TODO_VERIFY.md`: `1039160851`,
+  `1349163384`, `1349164576` (all unnamed). `campus.json` / `facade_sheet.csv` now hold 54
+  buildings (57 in-boundary − 3 duplicates).
+- Boundary polygon (Nominatim): **1.411 km² = 349 acres**, centroid
+  **30.9669622 N, 76.4731524 E**, i.e. below the institute's stated ~501–525 acres. Flagged in
+  `TODO_VERIFY.md`; the outside/inside split depends on this polygon.
+- `fetch_osm.py` now keeps `building`, `building:levels`, `height`, `amenity` tags, so the audit
+  can report metadata coverage (inside: 1 with `building:levels`, 49 with `height`, 57 with a
+  `building` type, 0 with `amenity`; types apartments=13, residential=12, yes=22, university=3,
+  industrial=2, garage=2, house=1, retail=1, roof=1).
+- `osm_audit.py` ranking is now inside-only (all unnamed inside buildings by footprint, then the
+  overlap pairs), adds a "Large unnamed inside buildings" top-10 with
+  `https://www.openstreetmap.org/way/<id>` links, and moves outside buildings to a separate,
+  unranked section.
+
+### Phase 4 pre-flight (found while wiring assets)
+
+- `blender/scripts/import_osm.py` iterates every GeoJSON feature (roads/footpaths too) and looks
+  up `facade[str(osm_id)]` while `facade_sheet.csv` keys rows by `BLDG_<osm_id>`. Both must be
+  fixed before the first bake, otherwise roads become buildings and every style falls back to
+  one floor.
+
 
 
 ## Risks
