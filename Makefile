@@ -3,6 +3,7 @@ NODE ?= node
 NPM ?= npm
 BLENDER ?= blender
 BLENDER_BIN ?= blender
+FLAT ?=
 
 SRC := data-src
 PUB := public
@@ -31,7 +32,7 @@ osm: $(SRC)/scripts/fetch_osm.py $(SRC)/scripts/facade_table.py
 	$(PYTHON) $(SRC)/scripts/fetch_osm.py --bbox-file $(BBOX) --out $(OSM)
 
 dem: $(SRC)/scripts/fetch_dem.py
-	$(PYTHON) $(SRC)/scripts/fetch_dem.py --out $(DEM)
+	$(PYTHON) $(SRC)/scripts/fetch_dem.py --out $(DEM) $(if $(FLAT),--flat)
 
 blend: $(BL_DIR)/scripts/import_osm.py $(BL_DIR)/scripts/bake.py
 	$(BLENDER_BIN) -b -P $(BL_DIR)/scripts/import_osm.py
