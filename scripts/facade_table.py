@@ -12,6 +12,9 @@ import json
 import os
 from typing import Any
 
+from shapely.geometry import shape
+
+
 DEFAULTS: dict[str, dict[str, Any]] = {
     "academic": {"floors": 3, "roof_type": "flat", "wall_color": "#c9c2b4", "trim_color": "#4a4a4a", "roof_color": "#8a8578", "window_pattern": "grid"},
     "hostel": {"floors": 2, "roof_type": "flat", "wall_color": "#cbb694", "trim_color": "#5b4632", "roof_color": "#7a5c3e", "window_pattern": "grid"},
@@ -37,10 +40,23 @@ def category_for(name: str) -> str:
 
 def main() -> int:
     osm = json.load(open("data-src/osm_campus.geojson"))
+    bbox = json.load(open("data-src/campus_bbox.json"))
+    boundary = shape(bbox.get("polygon") or {"type": "Polygon", "coordinates": [[[[float(bbox["west"]), float(bbox["south"])], [float(bbox["west"]), float(bbox["north"])], [float(bbox["east"]), float(bbox["north"])], [float(bbox["east"]), float(bbox["south"])], [float(bbox["west"]), float(bbox["south"])]]]]})
     buildings = []
     for f in osm.get("features", []):
         p = f.get("properties") or {}
         if p.get("layer") != "building":
+            continue
+        geom = f.get("geometry") or {}
+        if geom.get("type") == "Polygon":
+            geom = {"type": "Polygon", "coordinates": [[[c[1], c[0]] for c in ring] for ring in geom["coordinates"]]}
+        inside = False
+        try:
+            g = shape(geom)
+            inside = g.is_valid and not g.is_empty and g.intersects(boundary)
+        except Exception:
+            inside = False
+        if not inside:
             continue
         osm_id = p.get("osm_id")
         name = p.get("name") or f"Building_{osm_id}"
@@ -79,7 +95,7 @@ def main() -> int:
         "official_name": "Indian Institute of Technology Ropar",
         "country": "India",
         "polygon": {"type": "Polygon", "coordinates": []},
-        "bbox": {"south": 30.9, "north": 31.1, "west": 77.2, "east": 77.5},
+        "bbox": {"south": float(bbox.get("boundingbox", ["30.9", "31.1", "77.2", "77.5"])[0]), "north": float(bbox.get("boundingbox", ["30.9", "31.1", "77.2", "77.5"])[1]), "west": float(bbox.get("boundingbox", ["30.9", "31.1", "77.2", "77.5"])[2]), "east": float(bbox.get("boundingbox", ["30.9", "31.1", "77.2", "77.5"])[3])},
         "buildings": buildings,
     }
     with open("public/data/campus.json", "w") as f:

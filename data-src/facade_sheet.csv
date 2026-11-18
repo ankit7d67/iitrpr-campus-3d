@@ -1,53 +1,4 @@
 id,osm_way,name,category,floors,roof_type,wall_color,trim_color,roof_color,window_pattern,move_m,style,pad_group,verified
-BLDG_54030466,54030466,GS Estate Marriage Palace,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104877,257104877,Building_257104877,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104878,257104878,Building_257104878,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104879,257104879,Building_257104879,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104880,257104880,Building_257104880,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104881,257104881,Building_257104881,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104882,257104882,Building_257104882,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104883,257104883,Building_257104883,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104884,257104884,Building_257104884,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104885,257104885,Building_257104885,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104886,257104886,Building_257104886,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104887,257104887,Building_257104887,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104888,257104888,Building_257104888,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104889,257104889,Building_257104889,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104890,257104890,Building_257104890,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104891,257104891,Building_257104891,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104892,257104892,Building_257104892,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104893,257104893,Building_257104893,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104894,257104894,Building_257104894,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104895,257104895,Building_257104895,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104896,257104896,Building_257104896,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104897,257104897,Building_257104897,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257104945,257104945,Building_257104945,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257106394,257106394,Building_257106394,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257106396,257106396,Building_257106396,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257106397,257106397,Building_257106397,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257106399,257106399,Building_257106399,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257106401,257106401,Building_257106401,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_257106403,257106403,Building_257106403,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_364099875,364099875,"Head Post Office, Ropar/ Rupnagar",other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_644575757,644575757,Building_644575757,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_698885880,698885880,Building_698885880,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_736464363,736464363,Building_736464363,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_755086560,755086560,Building_755086560,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_755115472,755115472,Building_755115472,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_755137248,755137248,Building_755137248,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_756273924,756273924,Building_756273924,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_760435241,760435241,Building_760435241,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_760450815,760450815,Building_760450815,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_760455088,760455088,Building_760455088,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_760702707,760702707,Building_760702707,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_760702714,760702714,Building_760702714,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_765638359,765638359,Building_765638359,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_843185566,843185566,Building_843185566,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_843185576,843185576,Building_843185576,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_872846567,872846567,Building_872846567,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_873373862,873373862,Building_873373862,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_877733640,877733640,Building_877733640,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_878112826,878112826,Building_878112826,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
 BLDG_1032552691,1032552691,M2 Lecture Hall,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
 BLDG_1032552708,1032552708,Building_1032552708,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
 BLDG_1032552709,1032552709,Building_1032552709,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
@@ -55,7 +6,6 @@ BLDG_1032552710,1032552710,Building_1032552710,other,1,flat,#c9c2b4,#4a4a4a,#8a8
 BLDG_1032552712,1032552712,Building_1032552712,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
 BLDG_1032618611,1032618611,Building_1032618611,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
 BLDG_1039160851,1039160851,Building_1039160851,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_1162387350,1162387350,City 99 unisex salon,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
 BLDG_1270609407,1270609407,Super Academic Building,academic,3,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
 BLDG_1349163384,1349163384,Building_1349163384,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
 BLDG_1349163385,1349163385,Nalanda library,academic,3,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
@@ -104,9 +54,5 @@ BLDG_1349753251,1349753251,Building_1349753251,other,1,flat,#c9c2b4,#4a4a4a,#8a8
 BLDG_1349753253,1349753253,Building_1349753253,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
 BLDG_1349753254,1349753254,Building_1349753254,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
 BLDG_1349753255,1349753255,Building_1349753255,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_1464915910,1464915910,Building_1464915910,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_1464917555,1464917555,Building_1464917555,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_1464917556,1464917556,Building_1464917556,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
-BLDG_1464917557,1464917557,Building_1464917557,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
 BLDG_1550634810,1550634810,Maggi Point,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
 BLDG_1550634811,1550634811,Burger House,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false

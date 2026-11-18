@@ -1,8 +1,8 @@
 PYTHON ?= python
 NODE ?= node
 NPM ?= npm
-BLENDER ?= blender
-BLENDER_BIN ?= blender
+BLENDER ?= C:\Program Files\Blender Foundation\Blender 4.2\blender.exe
+BLENDER_BIN ?= $(BLENDER)
 FLAT ?=
 
 SRC := data-src
@@ -17,10 +17,10 @@ DEM := $(SRC)/dem.tif
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all dev phone osm dem blend assets check test e2e build preview verify clean
+.PHONY: help all dev phone osm audit dem blend assets check test e2e build preview verify clean
 
 help:
-	@echo "Targets: dev, phone, osm, dem, blend, assets, check, test, e2e, build, preview, verify, clean"
+	@echo "Targets: dev, phone, osm, audit, dem, blend, assets, check, test, e2e, build, preview, verify, clean"
 
 dev:
 	$(NPM) run dev
@@ -28,17 +28,24 @@ dev:
 phone:
 	$(NPM) run dev
 
-osm: $(SRC)/scripts/fetch_osm.py $(SRC)/scripts/facade_table.py
+# Full Phase 2 pipeline: fetch OSM, write the audit, then regenerate the facade
+# sheet and campus.json from buildings that fall inside the campus boundary.
+osm: $(SRC)/scripts/fetch_osm.py scripts/osm_audit.py scripts/facade_table.py
 	$(PYTHON) $(SRC)/scripts/fetch_osm.py --bbox-file $(BBOX) --out $(OSM)
+	$(PYTHON) scripts/osm_audit.py
+	$(PYTHON) scripts/facade_table.py
+
+audit: scripts/osm_audit.py
+	$(PYTHON) scripts/osm_audit.py
 
 dem: $(SRC)/scripts/fetch_dem.py
 	$(PYTHON) $(SRC)/scripts/fetch_dem.py --out $(DEM) $(if $(FLAT),--flat)
 
 blend: $(BL_DIR)/scripts/import_osm.py $(BL_DIR)/scripts/bake.py
-	$(BLENDER_BIN) -b -P $(BL_DIR)/scripts/import_osm.py
+	"$(BLENDER_BIN)" -b -P $(BL_DIR)/scripts/import_osm.py
 
 assets: blend $(BL_DIR)/scripts/bake.py
-	$(BLENDER_BIN) -b -P $(BL_DIR)/scripts/bake.py --export-format glb
+	"$(BLENDER_BIN)" -b -P $(BL_DIR)/scripts/bake.py --export-format glb
 
 check:
 	$(PYTHON) scripts/check_budget.py --campus $(CAMPUS) --nav $(NAV) --model $(MODEL) --scatter $(SCAT) --tris-in-view 150000 --max-model-mb 5 --max-materials 4 --max-textures 2
@@ -54,7 +61,7 @@ build:
 
 preview: $(BL_DIR)/scripts/import_osm.py
 	mkdir -p build/preview
-	$(BLENDER_BIN) -b -P $(BL_DIR)/scripts/render_preview.py
+	"$(BLENDER_BIN)" -b -P $(BL_DIR)/scripts/render_preview.py
 
 verify: check test build
 	@echo "ALL GREEN"

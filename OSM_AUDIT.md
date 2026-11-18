@@ -1,0 +1,213 @@
+# OSM Audit — IIT Ropar Campus
+
+Generated: 2026-11-18T06:41:02Z
+
+## Campus boundary
+
+- bbox south / north / west / east: 30.9590354 / 30.9720737 / 76.459751 / 76.4814233
+- bbox centre: 30.9655546 N, 76.4705872 E
+- distance from anchor (30.9704, 76.4691): 0.55 km
+- bbox size: 1.45 km (N-S) x 1.84 km (E-W)
+- bbox area: 2.67 km2 = 661 acres
+
+## Buildings
+
+- total buildings: 111
+- named: 18
+- unnamed: 93
+- inside campus boundary: 57
+- outside campus boundary: 54
+- overlapping pairs (>=20% of smaller footprint): 3
+
+### Named buildings
+
+- Burger House (osm_id=1550634811, inside)
+- City 99 unisex salon (osm_id=1162387350, OUTSIDE)
+- Girls Hostel2 (osm_id=1349204090, inside)
+- GS Estate Marriage Palace (osm_id=54030466, OUTSIDE)
+- Guest house (osm_id=1349753249, inside)
+- Head Post Office, Ropar/ Rupnagar (osm_id=364099875, OUTSIDE)
+- J.C. Bose Building (osm_id=1349164575, inside)
+- M2 Lecture Hall (osm_id=1032552691, inside)
+- Maggi Point (osm_id=1550634810, inside)
+- Mechanics Lab (osm_id=1349204077, inside)
+- Mess & Cafeteria (osm_id=1349204071, inside)
+- Nalanda library (osm_id=1349163385, inside)
+- Ravi Girls Hostel (osm_id=1349204070, inside)
+- S Ramanujan building (osm_id=1349164577, inside)
+- Satluj Boys hostel (osm_id=1349165963, inside)
+- soc lab (osm_id=1349204066, inside)
+- Super Academic Building (osm_id=1270609407, inside)
+- Utility block (osm_id=1349204069, inside)
+
+### Buildings outside the campus boundary
+
+- GS Estate Marriage Palace (osm_id=54030466)
+- (unnamed, osm_id=257104877)
+- (unnamed, osm_id=257104878)
+- (unnamed, osm_id=257104879)
+- (unnamed, osm_id=257104880)
+- (unnamed, osm_id=257104881)
+- (unnamed, osm_id=257104882)
+- (unnamed, osm_id=257104883)
+- (unnamed, osm_id=257104884)
+- (unnamed, osm_id=257104885)
+- (unnamed, osm_id=257104886)
+- (unnamed, osm_id=257104887)
+- (unnamed, osm_id=257104888)
+- (unnamed, osm_id=257104889)
+- (unnamed, osm_id=257104890)
+- (unnamed, osm_id=257104891)
+- (unnamed, osm_id=257104892)
+- (unnamed, osm_id=257104893)
+- (unnamed, osm_id=257104894)
+- (unnamed, osm_id=257104895)
+- (unnamed, osm_id=257104896)
+- (unnamed, osm_id=257104897)
+- (unnamed, osm_id=257104945)
+- (unnamed, osm_id=257106394)
+- (unnamed, osm_id=257106396)
+- (unnamed, osm_id=257106397)
+- (unnamed, osm_id=257106399)
+- (unnamed, osm_id=257106401)
+- (unnamed, osm_id=257106403)
+- Head Post Office, Ropar/ Rupnagar (osm_id=364099875)
+- (unnamed, osm_id=644575757)
+- (unnamed, osm_id=698885880)
+- (unnamed, osm_id=736464363)
+- (unnamed, osm_id=755086560)
+- (unnamed, osm_id=755115472)
+- (unnamed, osm_id=755137248)
+- (unnamed, osm_id=756273924)
+- (unnamed, osm_id=760435241)
+- (unnamed, osm_id=760450815)
+- (unnamed, osm_id=760455088)
+- (unnamed, osm_id=760702707)
+- (unnamed, osm_id=760702714)
+- (unnamed, osm_id=765638359)
+- (unnamed, osm_id=843185566)
+- (unnamed, osm_id=843185576)
+- (unnamed, osm_id=872846567)
+- (unnamed, osm_id=873373862)
+- (unnamed, osm_id=877733640)
+- (unnamed, osm_id=878112826)
+- City 99 unisex salon (osm_id=1162387350)
+- (unnamed, osm_id=1464915910)
+- (unnamed, osm_id=1464917555)
+- (unnamed, osm_id=1464917556)
+- (unnamed, osm_id=1464917557)
+
+### Overlapping buildings
+
+- M2 Lecture Hall (osm_id=1032552691) × (unnamed, osm_id=1039160851) — 100% of smaller footprint
+- (unnamed, osm_id=1349163384) × Nalanda library (osm_id=1349163385) — 100% of smaller footprint
+- (unnamed, osm_id=1349164576) × S Ramanujan building (osm_id=1349164577) — 100% of smaller footprint
+
+### Ranked list needing correction (highest score first)
+
+- score 130: (unnamed, osm_id=257106394) — 3532 m2 — outside campus boundary, unnamed
+- score 130: (unnamed, osm_id=257106399) — 2952 m2 — outside campus boundary, unnamed
+- score 130: (unnamed, osm_id=257106401) — 9619 m2 — outside campus boundary, unnamed
+- score 130: (unnamed, osm_id=257106403) — 12072 m2 — outside campus boundary, unnamed
+- score 130: (unnamed, osm_id=736464363) — 2194 m2 — outside campus boundary, unnamed
+- score 130: (unnamed, osm_id=1464917555) — 2327 m2 — outside campus boundary, unnamed
+- score 130: (unnamed, osm_id=1464917556) — 4520 m2 — outside campus boundary, unnamed
+- score 128: (unnamed, osm_id=257104945) — 1825 m2 — outside campus boundary, unnamed
+- score 126: (unnamed, osm_id=1464917557) — 1598 m2 — outside campus boundary, unnamed
+- score 126: (unnamed, osm_id=1464915910) — 1558 m2 — outside campus boundary, unnamed
+- score 125: (unnamed, osm_id=257106397) — 1495 m2 — outside campus boundary, unnamed
+- score 121: (unnamed, osm_id=257106396) — 1133 m2 — outside campus boundary, unnamed
+- score 121: (unnamed, osm_id=257104878) — 1052 m2 — outside campus boundary, unnamed
+- score 119: (unnamed, osm_id=756273924) — 932 m2 — outside campus boundary, unnamed
+- score 118: (unnamed, osm_id=257104889) — 840 m2 — outside campus boundary, unnamed
+- score 118: (unnamed, osm_id=257104887) — 784 m2 — outside campus boundary, unnamed
+- score 118: (unnamed, osm_id=760435241) — 754 m2 — outside campus boundary, unnamed
+- score 117: (unnamed, osm_id=644575757) — 717 m2 — outside campus boundary, unnamed
+- score 117: (unnamed, osm_id=257104890) — 708 m2 — outside campus boundary, unnamed
+- score 117: (unnamed, osm_id=257104886) — 671 m2 — outside campus boundary, unnamed
+- score 117: (unnamed, osm_id=257104888) — 659 m2 — outside campus boundary, unnamed
+- score 116: (unnamed, osm_id=257104893) — 598 m2 — outside campus boundary, unnamed
+- score 116: (unnamed, osm_id=755115472) — 596 m2 — outside campus boundary, unnamed
+- score 116: (unnamed, osm_id=760702714) — 589 m2 — outside campus boundary, unnamed
+- score 116: (unnamed, osm_id=765638359) — 566 m2 — outside campus boundary, unnamed
+- score 116: (unnamed, osm_id=257104877) — 562 m2 — outside campus boundary, unnamed
+- score 116: (unnamed, osm_id=257104897) — 562 m2 — outside campus boundary, unnamed
+- score 115: (unnamed, osm_id=257104891) — 513 m2 — outside campus boundary, unnamed
+- score 115: (unnamed, osm_id=257104881) — 499 m2 — outside campus boundary, unnamed
+- score 115: (unnamed, osm_id=843185576) — 499 m2 — outside campus boundary, unnamed
+- score 115: (unnamed, osm_id=760455088) — 487 m2 — outside campus boundary, unnamed
+- score 115: (unnamed, osm_id=760702707) — 479 m2 — outside campus boundary, unnamed
+- score 115: (unnamed, osm_id=755086560) — 466 m2 — outside campus boundary, unnamed
+- score 114: (unnamed, osm_id=257104882) — 400 m2 — outside campus boundary, unnamed
+- score 114: (unnamed, osm_id=257104892) — 399 m2 — outside campus boundary, unnamed
+- score 114: Head Post Office, Ropar/ Rupnagar (osm_id=364099875) — 1390 m2 — outside campus boundary
+- score 114: (unnamed, osm_id=257104896) — 378 m2 — outside campus boundary, unnamed
+- score 114: (unnamed, osm_id=257104895) — 365 m2 — outside campus boundary, unnamed
+- score 113: GS Estate Marriage Palace (osm_id=54030466) — 1313 m2 — outside campus boundary
+- score 113: (unnamed, osm_id=257104885) — 306 m2 — outside campus boundary, unnamed
+- score 113: (unnamed, osm_id=755137248) — 292 m2 — outside campus boundary, unnamed
+- score 113: (unnamed, osm_id=257104883) — 274 m2 — outside campus boundary, unnamed
+- score 112: (unnamed, osm_id=843185566) — 238 m2 — outside campus boundary, unnamed
+- score 112: (unnamed, osm_id=760450815) — 227 m2 — outside campus boundary, unnamed
+- score 112: (unnamed, osm_id=257104880) — 226 m2 — outside campus boundary, unnamed
+- score 112: (unnamed, osm_id=257104879) — 194 m2 — outside campus boundary, unnamed
+- score 112: (unnamed, osm_id=257104884) — 182 m2 — outside campus boundary, unnamed
+- score 112: (unnamed, osm_id=698885880) — 167 m2 — outside campus boundary, unnamed
+- score 111: (unnamed, osm_id=257104894) — 143 m2 — outside campus boundary, unnamed
+- score 111: (unnamed, osm_id=873373862) — 94 m2 — outside campus boundary, unnamed
+- score 111: (unnamed, osm_id=878112826) — 80 m2 — outside campus boundary, unnamed
+- score 111: (unnamed, osm_id=877733640) — 76 m2 — outside campus boundary, unnamed
+- score 111: (unnamed, osm_id=872846567) — 65 m2 — outside campus boundary, unnamed
+- score 101: City 99 unisex salon (osm_id=1162387350) — 87 m2 — outside campus boundary
+- score 50: (unnamed, osm_id=1039160851) — 2136 m2 — overlaps 1 other building(s), unnamed
+- score 42: (unnamed, osm_id=1349163384) — 1187 m2 — overlaps 1 other building(s), unnamed
+- score 40: M2 Lecture Hall (osm_id=1032552691) — 2048 m2 — overlaps 1 other building(s)
+- score 40: Nalanda library (osm_id=1349163385) — 3875 m2 — overlaps 1 other building(s)
+- score 40: S Ramanujan building (osm_id=1349164577) — 2153 m2 — overlaps 1 other building(s)
+- score 34: (unnamed, osm_id=1349164576) — 410 m2 — overlaps 1 other building(s), unnamed
+- score 30: (unnamed, osm_id=1032552710) — 2076 m2 — unnamed
+- score 30: (unnamed, osm_id=1032552712) — 3746 m2 — unnamed
+- score 30: (unnamed, osm_id=1349204067) — 2199 m2 — unnamed
+- score 30: (unnamed, osm_id=1349204072) — 5348 m2 — unnamed
+- score 30: (unnamed, osm_id=1349204073) — 5257 m2 — unnamed
+- score 30: (unnamed, osm_id=1349204074) — 3265 m2 — unnamed
+- score 20: Super Academic Building (osm_id=1270609407) — 13204 m2 — 
+- score 20: Satluj Boys hostel (osm_id=1349165963) — 5172 m2 — 
+- score 20: soc lab (osm_id=1349204066) — 2601 m2 — 
+- score 20: Ravi Girls Hostel (osm_id=1349204070) — 3806 m2 — 
+- score 20: Girls Hostel2 (osm_id=1349204090) — 4937 m2 — 
+- score 20: (unnamed, osm_id=1032552709) — 998 m2 — unnamed
+- score 20: (unnamed, osm_id=1032552708) — 969 m2 — unnamed
+- score 19: (unnamed, osm_id=1349204101) — 935 m2 — unnamed
+- score 18: (unnamed, osm_id=1349204075) — 844 m2 — unnamed
+- score 18: Mess & Cafeteria (osm_id=1349204071) — 1809 m2 — 
+- score 18: (unnamed, osm_id=1349753248) — 786 m2 — unnamed
+- score 18: (unnamed, osm_id=1349204104) — 778 m2 — unnamed
+- score 18: (unnamed, osm_id=1349204105) — 764 m2 — unnamed
+- score 18: (unnamed, osm_id=1349753244) — 763 m2 — unnamed
+- score 17: (unnamed, osm_id=1349753246) — 742 m2 — unnamed
+- score 17: (unnamed, osm_id=1349753247) — 717 m2 — unnamed
+- score 17: (unnamed, osm_id=1349204087) — 666 m2 — unnamed
+- score 17: (unnamed, osm_id=1349204080) — 654 m2 — unnamed
+- score 17: (unnamed, osm_id=1349204099) — 651 m2 — unnamed
+- score 16: (unnamed, osm_id=1349204079) — 623 m2 — unnamed
+- score 16: (unnamed, osm_id=1349753254) — 592 m2 — unnamed
+- score 16: (unnamed, osm_id=1349204088) — 566 m2 — unnamed
+- score 15: (unnamed, osm_id=1349204085) — 545 m2 — unnamed
+- score 15: (unnamed, osm_id=1349204082) — 530 m2 — unnamed
+- score 15: (unnamed, osm_id=1349204068) — 528 m2 — unnamed
+- score 15: (unnamed, osm_id=1349204083) — 527 m2 — unnamed
+- score 15: (unnamed, osm_id=1349204086) — 510 m2 — unnamed
+- score 15: (unnamed, osm_id=1349204100) — 509 m2 — unnamed
+- score 15: (unnamed, osm_id=1349204084) — 497 m2 — unnamed
+- score 15: (unnamed, osm_id=1349204081) — 492 m2 — unnamed
+- score 15: Utility block (osm_id=1349204069) — 1462 m2 — 
+- score 14: (unnamed, osm_id=1349753245) — 418 m2 — unnamed
+- score 13: (unnamed, osm_id=1032618611) — 331 m2 — unnamed
+- score 13: (unnamed, osm_id=1349753250) — 325 m2 — unnamed
+- score 12: (unnamed, osm_id=1349204076) — 250 m2 — unnamed
+- score 12: (unnamed, osm_id=1349753255) — 207 m2 — unnamed
+- score 12: (unnamed, osm_id=1349204078) — 187 m2 — unnamed
+- score 11: (unnamed, osm_id=1349204098) — 135 m2 — unnamed
+- score 11: (unnamed, osm_id=1349753253) — 89 m2 — unnamed
+- score 10: (unnamed, osm_id=1349753251) — 33 m2 — unnamed
