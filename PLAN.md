@@ -58,12 +58,12 @@ iitrpr-campus-3d/
 
 ## Phase checklist
 
-- [ ] Phase 1 — Environment
-- [ ] Phase 2 — Map data
-- [ ] Phase 3 — Building table and data
-- [ ] Phase 4 — Blender model
-- [ ] Phase 5 — Web app
-- [ ] Phase 6 — Tests and deployment
+- [x] Phase 1 — Environment (partial: Blender blocked, gh blocked)
+- [x] Phase 2 — Map data (partial: bbox + OSM ok; table printed)
+- [x] Phase 3 — Building table and data (done)
+- [ ] Phase 4 — Blender model (BLOCKED: Blender 4.2 headless not installable in this env)
+- [x] Phase 5 — Web app (partial: compiles; GLB/nav/scatter pending)
+- [ ] Phase 6 — Tests and deployment (partial: unit+build green; e2e pending)
 
 ## Risks
 
