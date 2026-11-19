@@ -613,6 +613,20 @@ ships with empty data; analytics included once a GoatCounter account exists.
   4 mats / 2 tex / meshopt + webp. Fixed one build lint error along the way
   (an unused `base` variable in the new layout).
 
+### 7-16 — Final test hardening (done)
+
+- Added three new unit suites (11 cases, **55 total**):
+  - `tests/assets.test.ts` — every committed manifest hash matches the actual
+    file on disk, so stale cache-busting URLs cannot ship.
+  - `tests/model.test.ts` — parses the GLB JSON chunk and asserts the three
+    required extensions, 4 named materials, 2 WebP images, 110 meshes, 33,724
+    triangles and all 54 `BLDG_` / 54 `ENTR_` nodes.
+  - `tests/data.test.ts` — mocks `fetch` and proves `loadCampus/loadNav/loadScatter`
+    request the hashed URLs from `make assets` and still parse the committed JSON.
+- QA: `make verify` **ALL GREEN** (55 unit tests + typecheck + static export),
+  `make e2e` **36/36**. CHECK_OK unchanged: 0.54 MB / 33,724 tris / 4 mats /
+  2 tex / meshopt + webp.
+
 ## Fixes
 
 - **(a)** Pad faces + retaining walls → `MAT_ground` via 3rd BLDG material slot (commit `08947bd`): 218 primitives, 4 materials, tris unchanged 26,654. verify + e2e 14/14.
