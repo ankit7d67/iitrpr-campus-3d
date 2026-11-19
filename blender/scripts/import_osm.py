@@ -211,6 +211,43 @@ def add_mesh_object(name: str, verts: list, faces: list, mats: list, face_mats: 
     return obj
 
 
+def add_uvs(obj, mode: str) -> None:
+    """UVs for the two baked textures (7-9).
+
+    ground: one full-coverage UV island over the terrain bounds, so the baked
+    ground-shadow PNG maps 1:1 onto the GROUND mesh.
+    building: repeating facade grid — U = horizontal position / 4 m, V = height
+    / 3.5 m — so the small window-emissive atlas tiles across every wall.
+    Roof/pad loops get the same mapping; their materials have no emissive map.
+    """
+    mesh = obj.data
+    layer = mesh.uv_layers.new(name="UVMap")
+    if mode == "ground":
+        xs = [v.co.x for v in mesh.vertices]
+        ys = [v.co.y for v in mesh.vertices]
+        xmin, xmax = min(xs), max(xs)
+        ymin, ymax = min(ys), max(ys)
+        w, h = max(xmax - xmin, 1.0), max(ymax - ymin, 1.0)
+        for loop in mesh.loops:
+            co = mesh.vertices[loop.vertex_index].co
+            layer.data[loop.index].uv = ((co.x - xmin) / w, (co.y - ymin) / h)
+        return
+    for poly in mesh.polygons:
+        nx, ny, _ = poly.normal
+        # Pad faces (3rd slot, MAT_ground) share the baked ground texture, so
+        # they need the same full-extent UV island as the GROUND mesh.
+        is_pad = poly.material_index == 2
+        for li in poly.loop_indices:
+            co = mesh.vertices[mesh.loops[li].vertex_index].co
+            if is_pad:
+                layer.data[li].uv = ((co.x + GROUND_W / 2.0) / GROUND_W,
+                                     (co.y + GROUND_H / 2.0) / GROUND_H)
+                continue
+            # A wall facing east/west runs north-south (and vice versa).
+            horizontal = co.y if abs(nx) > abs(ny) else co.x
+            layer.data[li].uv = (horizontal / 4.0, co.z / 3.5)
+
+
 def offset_ring(ring: list[tuple[float, float]], dist: float) -> list[tuple[float, float]]:
     """Outward offset of a CCW ring along vertex bisectors (mitre, length-clamped)."""
     n = len(ring)
@@ -291,6 +328,7 @@ def build_building(bid: str, ring: list[tuple[float, float]], floors: int, wall_
                 faces.append((bot_off + i, top_off + i, top_off + j, bot_off + j))
             face_mats.append(pad_mat)
     obj = add_mesh_object(bid, verts, faces, mats, face_mats)
+    add_uvs(obj, "building")
     obj["bid"] = bid
     obj["verified"] = "false"
 
@@ -357,6 +395,7 @@ def build_ground(mat, grid: dict | None, lat0: float, lon0: float) -> None:
     if not grid:
         verts = [(-half_x, -half_y, 0.0), (half_x, -half_y, 0.0), (half_x, half_y, 0.0), (-half_x, half_y, 0.0)]
         obj = add_mesh_object("GROUND", verts, [(0, 1, 2, 3)], [mat])
+        add_uvs(obj, "ground")
         obj["bid"] = "GROUND"
         return
     segs_x, segs_y = GROUND_SEGS_X, GROUND_SEGS_Y
@@ -380,6 +419,7 @@ def build_ground(mat, grid: dict | None, lat0: float, lon0: float) -> None:
     # per-face normals (~4.7x GROUND size); smooth keeps one vertex per grid point.
     for poly in obj.data.polygons:
         poly.use_smooth = True
+    add_uvs(obj, "ground")
     obj["bid"] = "GROUND"
 
 

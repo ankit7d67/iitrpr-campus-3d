@@ -60,7 +60,8 @@ See [TODO_VERIFY.md](./TODO_VERIFY.md). Every guessed value (floors, colours, he
 must carry `verified=false` and be listed here. Also unverified: the OSM duplicate/part
 footprints that are deliberately not extruded, the campus boundary polygon (390 acres vs the
 ~501–525 acres stated by the institute), and the synthetic tree/street-lamp positions in
-`scatter.json` (decorative, not an OSM inventory).
+`scatter.json` (decorative, not an OSM inventory), and the fixed-time baked
+ground shadow / repeating window atlas in `blender/textures/` (7-9).
 
 ## Licence / attribution
 

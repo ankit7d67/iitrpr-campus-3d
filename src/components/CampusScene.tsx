@@ -3,7 +3,7 @@ import { OrbitControls, ContactShadows, Gltf } from '@react-three/drei';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { loadScatter } from '../lib/data';
-import { getSunInfo } from '../lib/sun';
+import { getSunInfo, nightFactor } from '../lib/sun';
 import { useCampusStore } from '../lib/store';
 import type { ScatterEntry } from '../lib/types';
 import { RouteRenderer } from './RouteRenderer';
@@ -13,7 +13,7 @@ import { StreetLamps } from './StreetLamps';
 
 const CAMPUS_GLB = '/models/campus.glb';
 
-function applyNight(scene: THREE.Group | null, night: boolean) {
+function applyNight(scene: THREE.Group | null, glow: number) {
   if (!scene) return;
   scene.traverse((obj) => {
     const mesh = obj as THREE.Mesh;
@@ -22,9 +22,11 @@ function applyNight(scene: THREE.Group | null, night: boolean) {
     for (const m of mats) {
       const mat = m as THREE.MeshStandardMaterial;
       if (!mat || !mat.emissive) continue;
-      mat.emissive.set('#cdd8ff');
-      mat.emissiveIntensity = night ? 0.85 : 0;
-      mat.needsUpdate = true;
+      // 7-9: only MAT_wall carries the repeating window emissive atlas. Other
+      // materials stay dark instead of making the whole building glow.
+      const isWall = mat.name === 'MAT_wall';
+      mat.emissive.set(isWall ? '#ffffff' : '#000000');
+      mat.emissiveIntensity = isWall ? glow * 1.6 : 0;
     }
   });
 }
@@ -85,7 +87,8 @@ export function CampusScene() {
   // direction, colour and intensity. `dim` = manual night toggle OR the sun
   // below the horizon at the selected time — windows glow in either case.
   const sun = useMemo(() => getSunInfo(sunUtcMs), [sunUtcMs]);
-  const dim = night || sun.night;
+  const nightGlow = Math.max(night ? 1 : 0, nightFactor(sun));
+  const dim = nightGlow > 0.5;
   const elevation = Math.max(sun.elevationDeg, 0);
   const day = Math.min(elevation / 30, 1);
   const keyIntensity = dim ? 0.15 : 0.4 + 1.2 * day;
@@ -112,8 +115,8 @@ export function CampusScene() {
   }, []);
 
   useEffect(() => {
-    applyNight(gltfRef.current, dim);
-  }, [dim]);
+    applyNight(gltfRef.current, nightGlow);
+  }, [nightGlow]);
 
   // Attach the loaded model: hide the ENTR_* entrance markers (they are visual
   // anchors for nav.json, which routing uses by id — the meshes are not needed)
@@ -126,7 +129,7 @@ export function CampusScene() {
       if (obj.name.startsWith('ENTR_')) obj.visible = false;
     });
     const st = useCampusStore.getState();
-    applyNight(group, st.night || getSunInfo(st.sunUtcMs).night);
+    applyNight(group, Math.max(st.night ? 1 : 0, nightFactor(getSunInfo(st.sunUtcMs))));
   }, []);
 
   return (

@@ -453,6 +453,35 @@ ships with empty data; analytics included once a GoatCounter account exists.
   SCENE_TRI_QA: GLB 33,724 + 2,500 trees + 8,980 lamps = **45,204 tris in view**
   (≤150k). DEM_GRID_OK PASS (unchanged model).
 
+### 7-9 — Baked ground shadow + window glow (done)
+
+- `blender/scripts/import_osm.py` now adds UV islands to the model (7-8 added no
+  UVs): the GROUND mesh gets a full-extent 0…1 island, BLDG facades get a
+  repeating 4 m × 3.5 m grid, and building pad faces (MAT_ground's 3rd slot)
+  reuse the ground island so they sample the same baked shadow. No new geometry.
+- `blender/scripts/bake.py` generates two tiny PNGs via Blender's Python/numpy
+  and wires them into the **existing four** materials:
+  - `ground_bake.png` (1024², 27 KB): soft building shadow rasterised from 54
+    convex-hull footprints for a fixed 10:30 IST summer sun (elev 63.6°, az
+    99.9°), shadow floor 0.62, 5-tap penumbra. 3.4% ground coverage — a subtle
+    contact cue that does not fight the runtime sun (7-7).
+  - `window_emissive.png` (64², 370 B): one warm window tile, REPEAT-sampled by
+    the facade UVs. Only MAT_wall has an emissive map, so `applyNight()` now
+    drives `emissiveIntensity` on walls only (was: uniform blue glow on every
+    material). At night only the window rows light up.
+- New `build/geom_qa.py` / `surface_qa.py` confirmed X/Z coordinates, vertex
+  counts and all 33,724 triangles are unchanged; the small Y delta comes from
+  re-running `make assets` with the **re-cropped `data-src/dem.tif`** (file mtime
+  20:41, after the last GLB build at 17:37) — the committed GLB had stale
+  terrain. Road-ground margins differ from the old GLB by <1 cm.
+- `e2e/smoke.spec.ts` now fails on WebGL/shader/material console errors, so a
+  broken baked texture cannot pass silently (I cannot inspect images visually).
+- QA: `make verify` **ALL GREEN** (39 tests), e2e **22/22** on chromium+pixel7,
+  fresh UI screenshots. CHECK_OK: 33,724 tris / **1.82 MB / 4 materials /
+  2 textures** (was 0) / 54 buildings / 9 tour stops / 6 landmarks / 626 nav
+  nodes / 666 links / 330 scatter. GROUND_SHADOW_OK hulls=54, coverage 3.4%.
+  Budget still ≤5 MB / ≤4 mats / ≤2 tex / ≤150k tris.
+
 ## Fixes
 
 - **(a)** Pad faces + retaining walls → `MAT_ground` via 3rd BLDG material slot (commit `08947bd`): 218 primitives, 4 materials, tris unchanged 26,654. verify + e2e 14/14.

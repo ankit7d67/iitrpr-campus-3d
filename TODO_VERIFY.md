@@ -40,6 +40,17 @@ Every guessed or placeholder value must be listed here and in the README ("Value
   count and appearance are unverified against the real campus — do not treat them as
   an inventory of actual street furniture.
 
+## Baked lighting (7-9)
+
+- The baked ground shadow in `blender/textures/ground_bake.png` is rasterised for
+  one **fixed** sun position (15 Jun, 10:30 IST, elevation 63.6°, azimuth 99.9°).
+  It is a static contact cue, not a time-accurate shadow: the app's SunPanel can
+  move the sun, and the runtime directional shadow follows it, while the baked
+  shadow stays put. Verify the result in daylight and at night before treating
+  it as a faithful lighting model.
+- The window emissive atlas (`window_emissive.png`) is a repeating decorative
+  pattern, not the real window layout of any building.
+
 ## Placeholders
 
 - Missing OSM footprints (buildings/roads) go to `data-src/extra_footprints.geojson` with

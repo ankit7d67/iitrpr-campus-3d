@@ -6,12 +6,22 @@ test('home page loads with title', async ({ page }) => {
 });
 
 test('campus GLB is served and the canvas renders', async ({ page }) => {
+  // A broken shader/texture (7-9 baked maps) still leaves a visible canvas, so
+  // also fail on WebGL/material console errors.
+  const glErrors: string[] = [];
+  page.on('console', (m) => {
+    if (m.type() === 'error' && /webgl|shader|glsl|material|texture|gl_/i.test(m.text())) {
+      glErrors.push(m.text());
+    }
+  });
   const glb = page.waitForResponse((r) => r.url().includes('/models/campus.glb'));
   await page.goto('/');
   const res = await glb;
   expect(res.status()).toBe(200);
   expect(res.headers()['content-type'] ?? '').toContain('model/gltf-binary');
   await expect(page.locator('canvas').first()).toBeVisible();
+  await page.waitForTimeout(1200);
+  expect(glErrors, glErrors.join('\n')).toEqual([]);
 });
 
 test('deep link ?b=<ID> opens info panel', async ({ page }) => {
