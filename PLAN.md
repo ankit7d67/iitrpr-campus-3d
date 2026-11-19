@@ -482,6 +482,30 @@ ships with empty data; analytics included once a GoatCounter account exists.
   nodes / 666 links / 330 scatter. GROUND_SHADOW_OK hulls=54, coverage 3.4%.
   Budget still ≤5 MB / ≤4 mats / ≤2 tex / ≤150k tris.
 
+### 7-10 — Loading screen (done)
+
+- New `src/components/Loader.tsx` is a full-screen title card mounted from
+  `src/app/page.tsx`. It combines three.js `useProgress()` (GLB download) with a
+  new store flag `dataReady` (set after `loadCampus()` / `loadNav()` /
+  `loadScatter()` resolve) and `modelReady` (set by `CampusScene.attachGltf`, or
+  immediately in low quality, which never loads a GLB). The bar stops at 99 %
+  until the model actually attaches; `ready` triggers a 700 ms fade.
+- Failed JSON fetches set `dataError` and show an actionable card with a Retry
+  button instead of a blank canvas.
+- Low-quality mode is handled explicitly so switching quality cannot leave the
+  loader stuck; the GLB delayed-response e2e proves the loader appears and then
+  disappears without a fixed sleep.
+- New e2e cases: *loading screen shows progress while the model loads, then
+  disappears* (GLB route delayed 900 ms) and *data fetch failure shows an
+  actionable error card* (campus.json forced to 500). The error assertion is
+  scoped to `.loader-error` because Next.js injects its own empty
+  `[role=alert]` route announcer.
+- QA: `make verify` **ALL GREEN** (39 unit tests + typecheck + build),
+  `make e2e` **26/26** on chromium + pixel7 (was 22/22). CHECK_OK unchanged:
+  33,724 tris / 1.82 MB / 4 materials / 2 textures. Cleared one stale
+  `npm run dev` / `next dev` process trio that had left port 3000 occupied and
+  caused a Playwright webServer timeout on the first attempt.
+
 ## Fixes
 
 - **(a)** Pad faces + retaining walls → `MAT_ground` via 3rd BLDG material slot (commit `08947bd`): 218 primitives, 4 materials, tris unchanged 26,654. verify + e2e 14/14.

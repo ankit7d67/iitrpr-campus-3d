@@ -12,6 +12,7 @@ import { PerfOverlay } from '../components/PerfOverlay';
 import { AboutDialog } from '../components/AboutDialog';
 import { QualityControl } from '../components/QualityControl';
 import { Drawer } from '../components/Drawer';
+import { Loader } from '../components/Loader';
 import { useCampusStore } from '../lib/store';
 
 function DeepLinks() {
@@ -39,6 +40,7 @@ function DeepLinks() {
 function Home() {
   return (
     <div className="app">
+      <Loader />
       <div className="viewport">
         <CampusScene />
         <div className="top-right">

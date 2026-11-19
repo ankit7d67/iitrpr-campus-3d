@@ -77,6 +77,28 @@ test('sky and street lamps switch on at night', async ({ page }) => {
   await expect(lamps).toContainText('off');
 });
 
+test('loading screen shows progress while the model loads, then disappears', async ({ page }) => {
+  // Delay the GLB so the loader is observable deterministically.
+  await page.route('**/models/campus.glb', async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 900));
+    await route.continue();
+  });
+  await page.goto('/');
+  const loader = page.getByTestId('loader');
+  await expect(loader).toBeVisible();
+  await expect(loader.getByRole('progressbar', { name: 'Loading the campus model' })).toBeVisible();
+  await expect(loader).toBeHidden({ timeout: 15000 });
+});
+
+test('data fetch failure shows an actionable error card', async ({ page }) => {
+  await page.route('**/data/campus.json', (route) => route.fulfill({ status: 500, body: 'fail' }));
+  await page.goto('/');
+  // Scope to our card: Next.js injects its own empty route-announcer [role=alert].
+  const alert = page.locator('.loader-error[role="alert"]');
+  await expect(alert).toContainText(/could not be loaded/i);
+  await expect(alert.getByRole('button', { name: 'Retry' })).toBeVisible();
+});
+
 test('search finds a building and opens the info panel', async ({ page }) => {
   await page.goto('/');
   const input = page.getByPlaceholder('Search buildings, hostels, departments');

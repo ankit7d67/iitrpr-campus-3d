@@ -118,6 +118,11 @@ export function CampusScene() {
     applyNight(gltfRef.current, nightGlow);
   }, [nightGlow]);
 
+  // Low quality never loads the GLB, so data alone is enough to release the loader.
+  useEffect(() => {
+    if (!glbEnabled) useCampusStore.getState().setModelReady(true);
+  }, [glbEnabled]);
+
   // Attach the loaded model: hide the ENTR_* entrance markers (they are visual
   // anchors for nav.json, which routing uses by id — the meshes are not needed)
   // and apply the current night state (the [night] effect may have run while
@@ -125,6 +130,8 @@ export function CampusScene() {
   const attachGltf = useCallback((group: THREE.Group | null) => {
     gltfRef.current = group;
     if (!group) return;
+    // 7-10: the GLB has attached — release the loading screen.
+    useCampusStore.getState().setModelReady(true);
     group.traverse((obj) => {
       if (obj.name.startsWith('ENTR_')) obj.visible = false;
     });
