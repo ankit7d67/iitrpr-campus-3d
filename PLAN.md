@@ -125,6 +125,15 @@ iitrpr-campus-3d/
   `CampusScene` camera had default `near/far` limits and an unreachable starting position,
   `playwright.config.ts` now auto-starts the dev server via `webServer`.
 
+### Phase 4b — Item 1: asset tracking + CI (done)
+
+- Removed from `.gitignore` the rules that ignored `public/models/campus.glb`, `public/data/nav.json`,
+  `public/data/scatter.json` (and the whole `public/models/` dir pattern). Assets are now tracked;
+  `git ls-files public/models public/data` lists all four data files.
+- Committed asset-tracking fix.
+- Confirmed `make verify` on CI needs no Blender and no extra Python packages (check_budget.py is
+  stdlib-only; vitest + next build cover the rest). Workflow unchanged.
+
 ## Risks
 
 - DEM download (no auth-free source yet; fallback: flat ground behind a Makefile flag).
