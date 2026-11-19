@@ -11,6 +11,17 @@ Every guessed or placeholder value must be listed here and in the README ("Value
 - Building names / aliases / categories: partially from OSM, some manual curation pending.
 - Room numbers: not inventoried yet (empty in `public/data/campus.json`).
 
+## Terrain (DEM)
+
+- Copernicus GLO-30 (AWS open bucket `copernicus-dem-30m`, tile N30/E076) is processed by
+  `scripts/dem_grid.py` with a **5×5 median despeckle**: the raw tile has raster-aligned
+  artifacts on the campus (a 2-row-wide, full-tile-width band at rows 23–24 worth +2..+7 m
+  with 15% one-pixel edges, plus isolated +5 m pixels; raw max 273.8 m → 267.4 m after).
+  Whether that band is a real embankment/canal or a DEM stitching artifact was **not**
+  verified against imagery — check before trusting absolute heights near lat 30.9655.
+- Absolute elevations (~262–267 m) come from the DEM and are plausible for the Sutlej plain
+  but were not surveyed; verify against a topographic map if exact heights matter.
+
 ## Placeholders
 
 - Missing OSM footprints (buildings/roads) go to `data-src/extra_footprints.geojson` with

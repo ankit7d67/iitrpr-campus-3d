@@ -25,8 +25,10 @@ FLOOR_HEIGHT = 3.5
 PLINTH_HEIGHT = 0.6
 ROAD_WIDTHS = {"tertiary": 8.0, "unclassified": 6.0, "service": 4.0, "path": 2.5}
 GROUND_SIZE = 5000.0
-GROUND_SEGS = 40  # ground grid subdivisions (terrain follows the DEM inside the bbox)
+GROUND_SEGS = 80  # ground grid subdivisions (terrain follows the DEM inside the bbox)
 ROAD_Z = 0.06
+ROAD_LIFT = 0.1    # road surface above the GROUND mesh surface (m)
+ROAD_SEG_M = 10.0  # densify longer segments so ribbons follow the terrain mesh
 KERB_H = 0.15   # kerb rise above the road surface (m)
 KERB_W = 0.35   # kerb lip width (m)
 KERB_HIGHWAYS = {"tertiary", "unclassified"}  # only real streets get kerbs
@@ -79,6 +81,57 @@ def terrain_z_xy(grid: dict | None, x: float, y: float, lat0: float, lon0: float
         return 0.0
     m_lat, m_lon = local_scale(lat0)
     return terrain_z(grid, lat0 + y / m_lat, lon0 + x / m_lon)
+
+
+def ground_surface_z(grid: dict | None, x: float, y: float, lat0: float, lon0: float) -> float:
+    """Height of the GROUND mesh surface itself at (x, y).
+
+    build_ground writes explicit triangles split along the cell diagonal
+    (a, a+1, a+row+1) / (a, a+row+1, a+row) with terrain_z_xy() at each node, so
+    road/kerb vertices interpolate those SAME triangle planes. Sampling the raw
+    DEM (or a bilinear approximation) put roads on a different surface than the
+    ground and they intermittently sank below it (dashed look).
+    """
+    if not grid:
+        return 0.0
+    half = GROUND_SIZE / 2.0
+    segs = GROUND_SEGS
+    cell = GROUND_SIZE / segs
+    fx = (x + half) / cell
+    fy = (y + half) / cell
+    i = min(max(int(fx), 0), segs - 1)
+    j = min(max(int(fy), 0), segs - 1)
+    tx = min(max(fx - i, 0.0), 1.0)
+    ty = min(max(fy - j, 0.0), 1.0)
+    x0, y0 = -half + i * cell, -half + j * cell
+    x1, y1 = x0 + cell, y0 + cell
+    h00 = terrain_z_xy(grid, x0, y0, lat0, lon0)
+    h10 = terrain_z_xy(grid, x1, y0, lat0, lon0)
+    h01 = terrain_z_xy(grid, x0, y1, lat0, lon0)
+    h11 = terrain_z_xy(grid, x1, y1, lat0, lon0)
+    if ty <= tx:  # lower-right triangle (h00, h10, h11)
+        return (1.0 - tx) * h00 + (tx - ty) * h10 + ty * h11
+    # upper-left triangle (h00, h11, h01)
+    return (1.0 - ty) * h00 + tx * h11 + (ty - tx) * h01
+
+
+def densify(points: list[tuple[float, float]], max_len: float = ROAD_SEG_M) -> list:
+    """Insert vertices so no segment is longer than max_len (terrain following)."""
+    if len(points) < 2:
+        return points
+    out = [points[0]]
+    for pt in points[1:]:
+        x0, y0 = out[-1]
+        x1, y1 = pt
+        d = math.hypot(x1 - x0, y1 - y0)
+        if d > max_len:
+            n = int(d / max_len)
+            for k in range(1, n + 1):
+                t = k * max_len / d
+                if t < 1.0:
+                    out.append((x0 + (x1 - x0) * t, y0 + (y1 - y0) * t))
+        out.append(pt)
+    return out
 
 
 def srgb_to_linear(c: float) -> float:
@@ -244,7 +297,10 @@ def build_ground(mat, grid: dict | None, lat0: float, lon0: float) -> None:
     for j in range(segs):
         for i in range(segs):
             a = j * row + i
-            faces.append((a, a + 1, a + row + 1, a + row))
+            # Explicit triangles with the diagonal ground_surface_z() interpolates over,
+            # so the exported mesh has no re-tessellation ambiguity.
+            faces.append((a, a + 1, a + row + 1))
+            faces.append((a, a + row + 1, a + row))
     obj = add_mesh_object("GROUND", verts, faces, [mat])
     obj["bid"] = "GROUND"
 
@@ -307,6 +363,15 @@ def road_ribbon(points: list[tuple[float, float]], width: float, z_of=None,
 def build_roads(features: list, lat0: float, lon0: float, south: float, north: float,
                 west: float, east: float, mat, grid: dict | None = None) -> int:
     margin = 0.0015  # ~150 m, matches the nav graph buffer
+    # Prefer the shapely-clipped source (campus polygon + 100 m, scripts/clip_roads.py);
+    # fall back to the raw bbox selection only if it is missing.
+    clip_path = os.path.join(ROOT, "build", "roads_clip.geojson")
+    if os.path.exists(clip_path):
+        with open(clip_path) as f:
+            features = json.load(f).get("features", [])
+        print(f"ROADS: clipped source build/roads_clip.geojson ({len(features)} ways)")
+    else:
+        print("WARN: build/roads_clip.geojson missing -> unclipped bbox roads")
     verts, faces = [], []
     count = 0
     for f in features:
@@ -328,11 +393,13 @@ def build_roads(features: list, lat0: float, lon0: float, south: float, north: f
         pts = ring_metres(coords, lat0, lon0)
         if len(pts) < 2:
             continue
+        pts = densify(pts)  # follow the terrain mesh between its grid cells
         width = ROAD_WIDTHS.get(p.get("highway") or "", 3.0)
         kerb = (p.get("highway") or "") in KERB_HIGHWAYS
 
         def z_of(x, y, _lat0=lat0, _lon0=lon0, _grid=grid):
-            return terrain_z_xy(_grid, x, y, _lat0, _lon0) + ROAD_Z
+            # Same surface as the GROUND mesh + a small constant lift (no z-fighting).
+            return ground_surface_z(_grid, x, y, _lat0, _lon0) + ROAD_LIFT
 
         v, fc = road_ribbon(pts, width, z_of, kerb=kerb)
         offset = len(verts)

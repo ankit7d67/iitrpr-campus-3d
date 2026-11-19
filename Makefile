@@ -18,7 +18,7 @@ DEM := $(SRC)/dem.tif
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all dev phone osm audit dem dem-grid blend assets check test e2e build preview verify clean
+.PHONY: help all dev phone osm audit dem dem-grid clip-roads blend assets check test e2e build preview verify clean
 
 help:
 	@echo "Targets: dev, phone, osm, audit, dem, blend, assets, check, test, e2e, build, preview, verify, clean"
@@ -48,7 +48,12 @@ dem: $(SRC)/scripts/fetch_dem.py
 dem-grid:
 	-$(PYTHON) scripts/dem_grid.py
 
-blend: $(BL_DIR)/scripts/import_osm.py dem-grid
+# build/roads_clip.geojson = roads/footpaths clipped to the campus polygon + 100 m
+# (needs shapely in the system Python; import_osm.py falls back to unclipped if missing).
+clip-roads:
+	-$(PYTHON) scripts/clip_roads.py
+
+blend: $(BL_DIR)/scripts/import_osm.py dem-grid clip-roads
 	$(PYTHON) -c "import os; os.makedirs('build', exist_ok=True)"
 	"$(BLENDER_BIN)" -b -P $(BL_DIR)/scripts/import_osm.py
 

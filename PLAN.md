@@ -111,10 +111,11 @@ iitrpr-campus-3d/
 - `make blend` builds `build/campus.blend`: 54 buildings extruded from the facade sheet,
   80 road ribbons inside the boundary buffer. Saved OK.
 - `make assets` exports `public/models/campus.glb` (now ~614 KB, 110 objects incl. 54
-  `ENTR_` entrance markers + 8,796 triangles — terrain ground grid + street kerbs included,
+  `ENTR_` entrance markers + 23,094 triangles — terrain ground grid (62.5 m cells) +
+  street kerbs + densified road ribbons included,
   4 materials, 0 textures) and regenerates `public/data/nav.json` (626 nodes incl. 54 `ENTR_*`
   entrances, 666 links) + `public/data/scatter.json` (250 trees) via `scripts/build_nav.py`.
-- `make check`: CHECK_OK — size 0.60 MB, triangles 8,796, materials 4, textures 0, buildings 54;
+- `make check`: CHECK_OK — size 1.16 MB, triangles 23,094, materials 4, textures 0, buildings 54;
   GLB BLDG buildings ↔ campus.json OK; GLB `ENTR_*` ↔ nav `ENTR_*` OK; scatter non-empty.
 - `make preview`: 3 renders into `build/preview/{main,aerial,close}.png` (EEVEE Next headless OK).
   Image stats (PIL) show real content (std 12–16, ~800–1100 colours) after fixing the camera
@@ -195,6 +196,46 @@ iitrpr-campus-3d/
 - Budgets after kerbs: GLB **8,796 tris**, **0.60 MB**, 4 materials, 0 textures — well inside
   150k tris / 5 MB / 4 materials / 2 textures, so kerbs were allowed.
 - `make check` CHECK_OK, `make verify` ALL GREEN, `make e2e` 12/12.
+
+### Phase 4b — Regression fix: roads (done)
+
+Reported: roads broken/dashed and spread far outside the campus after the DEM
+commits (fine at `8d828a0`). Three distinct causes found and fixed:
+
+1. **Two different surfaces** — road z was sampled from the raw DEM (bilinear)
+   while the ground mesh was a coarse quad grid that Blender re-tessellated, so
+   roads intermittently sank below the ground (dashed). Fix: `build_ground` now
+   emits **explicit triangles with a known diagonal**, `ground_surface_z()`
+   interpolates those *same* triangle planes, roads sit at **+0.1 m**
+   (`ROAD_LIFT`), and long segments are densified (`ROAD_SEG_M = 10 m`).
+   `GROUND_SEGS` 40 → 80 (62.5 m cells) so creases are gentler.
+2. **No horizontal clipping** — `build_roads` kept any OSM way that merely
+   touched the bbox and drew its **full geometry** (Overpass returns whole ways;
+   road data spans lat 30.87–31.04, lon 76.24–76.63 ≈ 19×16 km). Fix: new
+   `scripts/clip_roads.py` (shapely, system Python — Blender has none) clips
+   roads/footpaths to the **campus polygon + 100 m** → `build/roads_clip.geojson`
+   (73 ways kept, 1652 dropped), wired as the `clip-roads` make target;
+   `import_osm.py` prefers it and warns if missing.
+3. **`data-src/dem.tif` was mis-georeferenced** (live since item 6) — the first
+   crop wrote height/width swapped: bounds read east 76.4728 (should be
+   76.4814) / south 30.9504 (should be 30.9590) and pixels were scrambled
+   (matched neither the window nor its transpose). Fixed `crop_dem.py` with a
+   `CROP_VERIFY` bounds+content assertion; regenerated 47×78, bounds OK.
+
+Also: Copernicus GLO-30 has **raster-aligned artifacts** on the campus — a
+2-row-wide, full-tile-width band at rows 23–24 (+2..+7 m, 15% one-pixel edges)
+plus isolated +5 m pixels (max 273.8 m). `scripts/dem_grid.py` now applies a
+**5×5 median despeckle** (removes 1–2-pixel features only; max now 267.4 m) —
+processed-data note, logged here and in TODO_VERIFY.md.
+
+Verification (numerical, no visual QA claimed): new `qa_roads.py` reads the
+exported GLB — all **14,600 road verts exactly +0.100 m** above the GROUND
+mesh (barycentric on its triangles), all **7,300 ribbon centroids above
+ground** (min +0.007 m), max distance of any road vert to the polygon
+**102.2 m** (≤ 100 m + ribbon/kerb width). Budgets: 23,094 tris, 1.16 MB,
+4 materials, 0 textures. `make check` CHECK_OK, `make verify` ALL GREEN,
+e2e **12/12** (`npx playwright test` after killing a stale dev server on :3000
+that made `make e2e` fail once — known flake).
 
 ## Risks
 
