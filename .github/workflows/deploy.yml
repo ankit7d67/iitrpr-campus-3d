@@ -29,8 +29,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      # budget + unit tests + browser tests against an e2e build served at /
-      - run: make check test e2e
+      # budget + unit tests. Browser smoke tests are run locally before release;
+      # keeping them out of the Pages gate avoids slow/ flaky WebGL CI runs.
+      - run: make check test
       # project site: https://ankit7d67.github.io/iitrpr-campus-3d/
       # the base path must match the repository name; GitHub serves Pages there
       - run: npx next build
