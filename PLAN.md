@@ -299,6 +299,14 @@ ships with empty data; analytics included once a GoatCounter account exists.
   `make verify` **ALL GREEN**, e2e **12/12**. Blender previews unchanged (no model
   change). Docs updated: README pipeline, AGENTS parity rules, TODO_VERIFY editorial note.
 
+## Fixes
+
+- **(a)** Pad faces + retaining walls → `MAT_ground` via 3rd BLDG material slot (commit `08947bd`): 218 primitives, 4 materials, tris unchanged 26,654. verify + e2e 14/14.
+- **(b)** Ground = campus bbox + 150 m (2370.5 × 1745.5 m, 95×70 grid), camera reframed, smooth GROUND normals, `ROAD_LIFT=0.15` + 5 m densify so ROAD_QA passes (commit `0168500`): ROAD_QA PASS (min centroid margin +0.0327 m), PAD_QA PASS (0/0/0), verify ALL GREEN, e2e 14/14, preview OK.
+- **(c)** Hide `ENTR_*` entrance marker meshes at runtime via `attachGltf` callback (commit `62fc030`): 54 nodes hidden in web scene only; GLB + nav.json anchors untouched; routing unaffected. verify ALL GREEN, e2e 14/14 w/ fresh screenshots.
+- **DEM crop fix** (this batch): Integer outward window `Window(1655,101,79,47)` replaces fractional `from_bounds()` transform, eliminating the 0.54 m east bound shortfall; bbox now fully contained on all 4 sides. `data-src/dem.tif` regenerated, `build/dem_grid.json` updated (cols 79). `make check`/`make verify`/`make e2e` all pass (14/14).
+- **Tour notes rewrite** (this batch): 9 non-compliant notes rewritten to data-only wording (name + OSM category only, no functional claims). `scripts/facade_table.py` regenerated `public/data/campus.json`. `make check`/`make verify`/`make e2e` all pass (14/14).
+
 ## Risks
 
 - ~~DEM download (no auth-free source yet; fallback: flat ground behind a Makefile flag).~~
