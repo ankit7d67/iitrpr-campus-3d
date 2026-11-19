@@ -12,6 +12,8 @@ function toLocalInputValue(utcMs: number): string {
 export function SunPanel() {
   const sunUtcMs = useCampusStore((s) => s.sunUtcMs);
   const setSunUtcMs = useCampusStore((s) => s.setSunUtcMs);
+  const night = useCampusStore((s) => s.night);
+  const setNight = useCampusStore((s) => s.setNight);
 
   useEffect(() => {
     const el = document.querySelector<HTMLInputElement>('#sun-time');
@@ -28,6 +30,9 @@ export function SunPanel() {
       <h2>Sun</h2>
       <label htmlFor="sun-time">Time of day (IST)</label>
       <input id="sun-time" type="datetime-local" value={toLocalInputValue(sunUtcMs)} onChange={(e) => onChange(e.target.value)} />
+      <button type="button" onClick={() => setNight(!night)}>
+        Night mode: {night ? 'ON' : 'OFF'}
+      </button>
     </div>
   );
 }

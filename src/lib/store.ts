@@ -17,6 +17,7 @@ export interface CampusState {
   perfFps: number | null;
   infoOpen: boolean;
   aboutOpen: boolean;
+  night: boolean;
   setQuality: (quality: Quality) => void;
   setSelectedBuildingId: (selectedBuildingId: string | null) => void;
   setSearchQuery: (searchQuery: string) => void;
@@ -26,6 +27,7 @@ export interface CampusState {
   setPerfFps: (perfFps: number | null) => void;
   setInfoOpen: (infoOpen: boolean) => void;
   setAboutOpen: (aboutOpen: boolean) => void;
+  setNight: (night: boolean) => void;
 }
 
 export const useCampusStore = create<CampusState>()((set) => ({
@@ -38,6 +40,7 @@ export const useCampusStore = create<CampusState>()((set) => ({
   perfFps: null,
   infoOpen: false,
   aboutOpen: false,
+  night: false,
   setQuality: (quality) => set({ quality }),
   setSelectedBuildingId: (selectedBuildingId) => set({ selectedBuildingId }),
   setSearchQuery: (searchQuery) => set({ searchQuery }),
@@ -47,4 +50,5 @@ export const useCampusStore = create<CampusState>()((set) => ({
   setPerfFps: (perfFps) => set({ perfFps }),
   setInfoOpen: (infoOpen) => set({ infoOpen }),
   setAboutOpen: (aboutOpen) => set({ aboutOpen }),
+  setNight: (night) => set({ night }),
 }));

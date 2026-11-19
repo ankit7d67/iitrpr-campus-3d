@@ -1,13 +1,92 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, ContactShadows, Gltf } from '@react-three/drei';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import * as THREE from 'three';
+import { loadScatter } from '../lib/data';
 import { useCampusStore } from '../lib/store';
+import type { ScatterEntry } from '../lib/types';
 
 const CAMPUS_GLB = '/models/campus.glb';
+
+function applyNight(scene: THREE.Group | null, night: boolean) {
+  if (!scene) return;
+  scene.traverse((obj) => {
+    const mesh = obj as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    for (const m of mats) {
+      const mat = m as THREE.MeshStandardMaterial;
+      if (!mat || !mat.emissive) continue;
+      mat.emissive.set('#cdd8ff');
+      mat.emissiveIntensity = night ? 0.85 : 0;
+      mat.needsUpdate = true;
+    }
+  });
+}
+
+function Trees({ scatter }: { scatter: ScatterEntry[] }) {
+  const ref = useRef<THREE.InstancedMesh>(null);
+  const treeMat = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: new THREE.Color('#2e5d34'),
+        roughness: 1.0,
+        flatShading: true,
+      }),
+    [],
+  );
+  const geometry = useMemo(() => new THREE.ConeGeometry(0.9, 2.2, 6), []);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const instances = useMemo(() => {
+    const n = Math.min(scatter.length, 1024);
+    const matrices = new Array<THREE.Matrix4>(n);
+    for (let i = 0; i < n; i++) {
+      const t = scatter[i % Math.max(scatter.length, 1)];
+      dummy.position.set(t.position[0], 0, t.position[2]);
+      dummy.scale.setScalar(t.scale ?? 1);
+      dummy.rotation.set(t.rotation?.[0] ?? 0, t.rotation?.[1] ?? 0, 0);
+      dummy.updateMatrix();
+      matrices[i] = dummy.matrix.clone();
+    }
+    return { n, matrices };
+  }, [scatter, dummy]);
+
+  useEffect(() => {
+    const mesh = ref.current;
+    if (!mesh) return;
+    for (let i = 0; i < instances.n; i++) {
+      mesh.setMatrixAt(i, instances.matrices[i]);
+    }
+    mesh.count = instances.n;
+    mesh.instanceMatrix.needsUpdate = true;
+  }, [instances]);
+
+  if (instances.n < 1) return null;
+  return <instancedMesh ref={ref} args={[geometry, treeMat, instances.n]} frustumCulled={false} />;
+}
 
 export function CampusScene() {
   const quality = useCampusStore((s) => s.quality);
   const glbEnabled = quality !== 'low';
+  const night = useCampusStore((s) => s.night);
+  const [scatter, setScatter] = useState<ScatterEntry[]>([]);
+  const gltfRef = useRef<THREE.Group>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadScatter()
+      .then((s) => {
+        if (!cancelled) setScatter(s);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    applyNight(gltfRef.current, night);
+  }, [night]);
 
   return (
     <Canvas
@@ -17,22 +96,12 @@ export function CampusScene() {
       shadows={glbEnabled}
     >
       <ambientLight intensity={0.7} />
-      <directionalLight
-        position={[300, 500, 200]}
-        intensity={1.6}
-        castShadow={glbEnabled}
-        shadow-mapSize={[2048, 2048]}
-        shadow-camera-left={-1200}
-        shadow-camera-right={1200}
-        shadow-camera-top={1200}
-        shadow-camera-bottom={-1200}
-        shadow-camera-far={4000}
-        color="#fff4e0"
-      />
+      <directionalLight position={[300, 500, 200]} intensity={1.6} castShadow={glbEnabled} shadow-mapSize={[2048, 2048]} color="#fff4e0" />
       <directionalLight position={[-300, 200, -250]} intensity={0.35} />
       <Suspense fallback={null}>
-        {glbEnabled ? <Gltf src={CAMPUS_GLB} /> : null}
+        {glbEnabled ? <Gltf src={CAMPUS_GLB} ref={gltfRef} /> : null}
       </Suspense>
+      <Trees scatter={scatter} />
       <ContactShadows position={[0, 0.1, 0]} opacity={0.35} scale={4200} blur={2.5} far={60} />
       <OrbitControls enablePan enableDamping makeDefault target={[0, 0, 0]} maxDistance={8000} />
     </Canvas>
