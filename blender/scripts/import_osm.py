@@ -32,6 +32,7 @@ ROAD_SEG_M = 10.0  # densify longer segments so ribbons follow the terrain mesh
 KERB_H = 0.15   # kerb rise above the road surface (m)
 KERB_W = 0.35   # kerb lip width (m)
 KERB_HIGHWAYS = {"tertiary", "unclassified"}  # only real streets get kerbs
+PAD_OFFSET = 1.5  # level-pad width around a building footprint (m)
 
 
 def load_dem_grid() -> dict | None:
@@ -204,12 +205,49 @@ def add_mesh_object(name: str, verts: list, faces: list, mats: list, face_mats: 
     return obj
 
 
+def offset_ring(ring: list[tuple[float, float]], dist: float) -> list[tuple[float, float]]:
+    """Outward offset of a CCW ring along vertex bisectors (mitre, length-clamped)."""
+    n = len(ring)
+
+    def edge_normal(p0, p1):
+        dx, dy = p1[0] - p0[0], p1[1] - p0[1]
+        length = math.hypot(dx, dy)
+        if length < 1e-9:
+            return (0.0, 0.0)
+        return (dy / length, -dx / length)  # right of travel = outward for CCW
+
+    out = []
+    for i in range(n):
+        prev_p, cur, nxt = ring[i - 1], ring[i], ring[(i + 1) % n]
+        n1 = edge_normal(prev_p, cur)
+        n2 = edge_normal(cur, nxt)
+        denom = max(1.0 + n1[0] * n2[0] + n1[1] * n2[1], 0.1)  # mitre, clamp spikes
+        dx = (n1[0] + n2[0]) / denom * dist
+        dy = (n1[1] + n2[1]) / denom * dist
+        m = math.hypot(dx, dy)
+        if m > dist * 3.0:  # bevel very sharp corners instead of spiking
+            dx, dy = dx / m * dist * 3.0, dy / m * dist * 3.0
+        out.append((cur[0] + dx, cur[1] + dy))
+    return out
+
+
 def build_building(bid: str, ring: list[tuple[float, float]], floors: int, wall_mat, roof_mat,
-                   base_z: float = 0.0) -> None:
+                   base_z: float = 0.0, ground_z=None) -> None:
+    """Extrude a building and, when ground_z is given, sit it on a level pad:
+    base_z becomes the highest terrain under the footprint (nothing is buried),
+    a PAD_OFFSET-wide pad annulus closes the ring to grade, and retaining walls
+    drop (or rise, on the uphill side) from the pad edge to the ground surface.
+    All ground contact uses the same surface the GROUND mesh is made of.
+    """
     if len(ring) < 3:
         return
     if signed_area(ring) < 0:
         ring = list(reversed(ring))
+    if ground_z is not None:
+        gz_ring = [ground_z(x, y) for x, y in ring]
+        base_z = max(gz_ring)  # level pad = highest ground under the footprint
+    else:
+        gz_ring = None
     height = PLINTH_HEIGHT + max(1, floors) * FLOOR_HEIGHT
     n = len(ring)
     verts = [(x, y, base_z) for x, y in ring] + [(x, y, base_z + height) for x, y in ring]
@@ -217,6 +255,25 @@ def build_building(bid: str, ring: list[tuple[float, float]], floors: int, wall_
     faces.append(tuple(range(n, 2 * n)))  # flat roof
     # Walls use material 0, the roof face uses material 1.
     face_mats = [0] * (len(faces) - 1) + [1]
+    if ground_z is not None:
+        pad = offset_ring(ring, PAD_OFFSET)
+        gz_pad = [ground_z(x, y) for x, y in pad]
+        top_off = 2 * n   # pad edge verts (z = base_z)
+        bot_off = 3 * n   # retaining-wall feet (z = terrain at the pad edge)
+        verts += [(x, y, base_z) for x, y in pad]
+        verts += [(x, y, gz_pad[i]) for i, (x, y) in enumerate(pad)]
+        for i in range(n):
+            j = (i + 1) % n
+            # Pad top: quad between footprint ring and pad edge, normal +z.
+            faces.append((i, top_off + i, top_off + j, j))
+            face_mats.append(0)
+            # Retaining wall at the pad edge; order by which end is higher so the
+            # face normal points away from the building on both cut and fill sides.
+            if (gz_pad[i] + gz_pad[j]) * 0.5 <= base_z:
+                faces.append((top_off + i, bot_off + i, bot_off + j, top_off + j))
+            else:
+                faces.append((bot_off + i, top_off + i, top_off + j, bot_off + j))
+            face_mats.append(0)
     obj = add_mesh_object(bid, verts, faces, [wall_mat, roof_mat], face_mats)
     obj["bid"] = bid
     obj["verified"] = "false"
@@ -452,16 +509,16 @@ def main() -> None:
             continue
         ring_ll = geom["coordinates"][0]
         ring = ring_metres(ring_ll, lat0, lon0)
-        # Sit the building on the local terrain (DEM), so it neither floats nor sinks.
-        pts_ll = ring_ll[:-1] if len(ring_ll) > 1 and ring_ll[0] == ring_ll[-1] else ring_ll
-        clat = sum(p[0] for p in pts_ll) / max(1, len(pts_ll))
-        clon = sum(p[1] for p in pts_ll) / max(1, len(pts_ll))
-        base_z = terrain_z(grid, clat, clon)
-        build_building(bid, ring, int(row.get("floors") or 1), wall_mat, roof_mat, base_z=base_z)
+        # Level pad + retaining walls: base sits on the highest ground under the
+        # footprint (same surface the GROUND mesh uses), so nothing floats or sinks.
+        gz_fn = (lambda x, y, _g=grid, _la=lat0, _lo=lon0:
+                 ground_surface_z(_g, x, y, _la, _lo))
+        build_building(bid, ring, int(row.get("floors") or 1), wall_mat, roof_mat,
+                       ground_z=gz_fn)
         built += 1
         ent = nearest_road_point((ring[0][0], ring[0][1], 0.0), geojson.get("features", []), lat0, lon0, south, north, west, east)
         if ent is not None:
-            ent_z = terrain_z_xy(grid, ent[0], ent[1], lat0, lon0) + PLINTH_HEIGHT
+            ent_z = ground_surface_z(grid, ent[0], ent[1], lat0, lon0) + PLINTH_HEIGHT
             add_entrance(f"ENTR_{bid[len('BLDG_'):]}", (ent[0], ent[1], ent_z), ground_mat)
 
     roads = build_roads(geojson.get("features", []), lat0, lon0, south, north, west, east, road_mat, grid)

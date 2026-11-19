@@ -110,12 +110,12 @@ iitrpr-campus-3d/
 
 - `make blend` builds `build/campus.blend`: 54 buildings extruded from the facade sheet,
   80 road ribbons inside the boundary buffer. Saved OK.
-- `make assets` exports `public/models/campus.glb` (now ~614 KB, 110 objects incl. 54
-  `ENTR_` entrance markers + 23,094 triangles — terrain ground grid (62.5 m cells) +
-  street kerbs + densified road ribbons included,
+- `make assets` exports `public/models/campus.glb` (now ~1.40 MB, 110 objects incl. 54
+  `ENTR_` entrance markers + 26,654 triangles — terrain ground grid (62.5 m cells) +
+  street kerbs + densified road ribbons + level pads/retaining walls included,
   4 materials, 0 textures) and regenerates `public/data/nav.json` (626 nodes incl. 54 `ENTR_*`
   entrances, 666 links) + `public/data/scatter.json` (250 trees) via `scripts/build_nav.py`.
-- `make check`: CHECK_OK — size 1.16 MB, triangles 23,094, materials 4, textures 0, buildings 54;
+- `make check`: CHECK_OK — size 1.40 MB, triangles 26,654, materials 4, textures 0, buildings 54;
   GLB BLDG buildings ↔ campus.json OK; GLB `ENTR_*` ↔ nav `ENTR_*` OK; scatter non-empty.
 - `make preview`: 3 renders into `build/preview/{main,aerial,close}.png` (EEVEE Next headless OK).
   Image stats (PIL) show real content (std 12–16, ~800–1100 colours) after fixing the camera
@@ -236,6 +236,26 @@ ground** (min +0.007 m), max distance of any road vert to the polygon
 4 materials, 0 textures. `make check` CHECK_OK, `make verify` ALL GREEN,
 e2e **12/12** (`npx playwright test` after killing a stale dev server on :3000
 that made `make e2e` fail once — known flake).
+
+### Phase 4b — Item 8: level pads + retaining walls (done)
+
+Previously gated on "a real DEM is in" — now unblocked (items 6 + road regression fix).
+
+- `blender/scripts/import_osm.py`: `build_building(..., ground_z=...)` now computes
+  `base_z = max(terrain under the footprint)` on the **same surface the GROUND mesh uses**
+  (`ground_surface_z`, i.e. the exact triangle planes — the road-regression lesson applied
+  to buildings), so nothing floats or sinks. New `offset_ring()` (CCW bisector offset,
+  mitre clamped at 3×, `PAD_OFFSET = 1.5 m`) builds a level-pad annulus around each
+  footprint plus retaining-wall quads from the pad edge down (fill) or up (cut, uphill
+  side) to grade; wall winding is picked per segment so normals face away from the
+  building on both sides. Pads/walls are faces inside the existing `BLDG_` meshes using
+  `MAT_wall` — **no new objects, no new materials** (parity and 4-material budget intact).
+  Entrance markers now also sit on `ground_surface_z` instead of raw-DEM bilinear.
+- Budgets after pads: GLB **26,654 tris**, **1.40 MB**, 4 materials, 0 textures, 110 objects.
+- Numerical QA (`qa_pads.py`, GLB-based): 54 BLDG meshes; ring bottoms never below ground
+  (worst −0.0000 m); every wall foot exactly on the ground surface (worst 0.0000 m); every
+  pad edge closes to grade (0 missing feet) → **PAD_QA PASS**.
+- `make check` CHECK_OK, `make verify` ALL GREEN, e2e **12/12**, previews re-rendered.
 
 ## Risks
 
