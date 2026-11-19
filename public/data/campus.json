@@ -1210,39 +1210,39 @@
       "stops": [
         {
           "bid": "BLDG_1032552691",
-          "note": "Lecture halls \u00e2\u20ac\u201d where your first classes run."
+          "note": "Lecture Hall (academic)."
         },
         {
           "bid": "BLDG_1270609407",
-          "note": "Super Academic Building \u00e2\u20ac\u201d main teaching block."
+          "note": "Super Academic Building (academic)."
         },
         {
           "bid": "BLDG_1349163385",
-          "note": "Nalanda Library \u00e2\u20ac\u201d central library and study spaces."
+          "note": "Nalanda Library (academic)."
         },
         {
           "bid": "BLDG_1349164575",
-          "note": "J.C. Bose Building \u00e2\u20ac\u201d laboratories and offices."
+          "note": "J.C. Bose Building (other)."
         },
         {
           "bid": "BLDG_1349164577",
-          "note": "S Ramanujan Building \u00e2\u20ac\u201d departments and classrooms."
+          "note": "S Ramanujan Building (other)."
         },
         {
           "bid": "BLDG_1349204071",
-          "note": "Mess & Cafeteria \u00e2\u20ac\u201d dining on campus."
+          "note": "Mess & Cafeteria (food)."
         },
         {
           "bid": "BLDG_1349165963",
-          "note": "Satluj Boys hostel."
+          "note": "Satluj Boys hostel (hostel)."
         },
         {
           "bid": "BLDG_1349204070",
-          "note": "Ravi Girls Hostel."
+          "note": "Ravi Girls Hostel (hostel)."
         },
         {
           "bid": "BLDG_1349753249",
-          "note": "Guest house \u00e2\u20ac\u201d for visiting family."
+          "note": "Guest house (other)."
         }
       ]
     }
