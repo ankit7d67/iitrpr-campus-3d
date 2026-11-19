@@ -299,6 +299,40 @@ ships with empty data; analytics included once a GoatCounter account exists.
   `make verify` **ALL GREEN**, e2e **12/12**. Blender previews unchanged (no model
   change). Docs updated: README pipeline, AGENTS parity rules, TODO_VERIFY editorial note.
 
+### 7-2 — CameraRig (done, one follow-up)
+
+- `OrbitControls` already ship with `enableDamping` (smooth orbit) and the camera
+  is framed at `[1150, 1500, 1750]` → target `[0,0,0]`, `maxDistance=8000`
+  (re-aimed in fix (b) after the ground grew).
+- **Follow-up:** setting an explicit `damping={0.05}` value is not currently
+  possible — `@react-three/drei`'s `OrbitControlsProps` type does not expose the
+  `damping` prop (the prop works at runtime, but typecheck/lint blocks it).
+  Revisit when the drei types catch up or via a `ref` accessor.
+
+### 7-3 — Search (reviewed, already complete)
+
+- `SearchPanel` (input + max-12 results + Go + no-match hint) over
+  `searchBuildings()` (token/name/alias scoring: name×3 + alias×2 + token×0.5)
+  in `src/lib/search.ts`, fed by `loadCampus()` (zod-validated).
+- Verified end-to-end: unit tests 4/4 (`tests/search.test.ts`) and e2e
+  "search finds a building and opens the info panel" green on chromium + pixel7.
+  Search → info dialog already navigates the user to the selected building panel.
+
+### 7-4 — Control drawer (done)
+
+- New `src/components/Drawer.tsx`: slide-out left drawer housing the title,
+  `SearchPanel` and `QualityControl`; `«` collapses it (Escape also closes),
+  `☰` reopens it. State lives in the store (`drawerOpen`, default **open** so
+  deep-link/search/tour e2e always find their controls).
+- CSS in `globals.css`: 300 px panel matching the panel design tokens,
+  `transform/opacity/visibility` transition, `visibility: hidden` when closed
+  (so closed content is genuinely hidden from Playwright/AT), inner cards drop
+  their chrome inside the drawer, `.dialog-backdrop` bumped to `z-index: 40`
+  so modals stay above it, responsive width on ≤640 px.
+- QA: `make verify` **ALL GREEN** (check + 24 unit tests + build), e2e
+  **16/16** — new test "drawer collapses and reopens with controls" runs on
+  chromium + pixel7; fresh `ui-desktop.png` / `ui-phone.png` captured.
+
 ## Fixes
 
 - **(a)** Pad faces + retaining walls → `MAT_ground` via 3rd BLDG material slot (commit `08947bd`): 218 primitives, 4 materials, tris unchanged 26,654. verify + e2e 14/14.

@@ -49,3 +49,13 @@ test('tour panel lists stops and can select one', async ({ page }) => {
     await stop.click();
   }
 });
+
+test('drawer collapses and reopens with controls', async ({ page }) => {
+  await page.goto('/');
+  const input = page.getByPlaceholder('Search buildings, hostels, departments');
+  await expect(input).toBeVisible();
+  await page.getByRole('button', { name: 'Close controls' }).click();
+  await expect(input).not.toBeVisible();
+  await page.getByRole('button', { name: 'Open controls' }).click();
+  await expect(input).toBeVisible();
+});

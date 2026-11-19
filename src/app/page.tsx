@@ -12,6 +12,7 @@ import { SunPanel } from '../components/SunPanel';
 import { PerfOverlay } from '../components/PerfOverlay';
 import { AboutDialog } from '../components/AboutDialog';
 import { QualityControl } from '../components/QualityControl';
+import { Drawer } from '../components/Drawer';
 import { useCampusStore } from '../lib/store';
 
 function DeepLinks() {
@@ -46,14 +47,14 @@ function Home() {
       <div className="viewport">
         <CampusScene />
         {routeFromId && routeToId && <RouteRenderer fromId={routeFromId} toId={routeToId} />}
-        <div className="top-left">
-          <h1>IIT Ropar · 3D Campus</h1>
-          <SearchPanel />
-          <QualityControl />
-        </div>
         <div className="top-right">
           <SunPanel />
         </div>
+        <Drawer label="controls">
+          <h1>IIT Ropar · 3D Campus</h1>
+          <SearchPanel />
+          <QualityControl />
+        </Drawer>
         <div className="bottom-left">
           <BuildingPanel />
         </div>
