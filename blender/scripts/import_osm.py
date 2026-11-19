@@ -142,6 +142,60 @@ def build_building(bid: str, ring: list[tuple[float, float]], floors: int, wall_
     obj["verified"] = "false"
 
 
+def add_entrance(name: str, loc: tuple[float, float, float], mat, radius: float = 2.0) -> None:
+    """Low-poly octahedron entrance marker at an (east, north, up) location."""
+    x, y, z = loc
+    r = radius
+    verts = [
+        (x + r, y, z), (x - r, y, z), (x, y + r, z), (x, y - r, z),
+        (x, y, z + r), (x, y, z - r),
+    ]
+    faces = [
+        (0, 2, 4), (2, 1, 4), (1, 3, 4), (3, 0, 4),
+        (2, 0, 5), (1, 2, 5), (3, 1, 5), (0, 3, 5),
+    ]
+    mesh = bpy.data.meshes.new(name)
+    mesh.from_pydata(verts, [], faces)
+    mesh.validate(verbose=False)
+    mesh.update()
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(obj)
+    obj.data.materials.append(mat)
+    obj["bid"] = name
+    return obj
+
+
+def nearest_road_point(pt: tuple[float, float, float], features: list, lat0: float, lon0: float,
+                       south: float, north: float, west: float, east: float):
+    """Nearest point on a near-campus road/footpath from a building point; returns (x, y, z, angle)."""
+    bx, by = pt[0], pt[1]
+    best = None
+    for f in features:
+        p = f.get("properties") or {}
+        if p.get("layer") not in ("road", "footpath"):
+            continue
+        geom = f.get("geometry") or {}
+        if geom.get("type") != "LineString":
+            continue
+        coords = geom.get("coordinates") or []
+        for i in range(len(coords) - 1):
+            (a0, a1), (b0, b1) = coords[i], coords[i + 1]
+            ax, ay = (a0 - lat0) * 110_900.0, (a1 - lon0) * 95_500.0
+            bx2, by2 = (b0 - lat0) * 110_900.0, (b1 - lon0) * 95_500.0
+            dx, dy = bx2 - ax, by2 - ay
+            seg = math.hypot(dx, dy) or 1.0
+            t = max(0.0, min(1.0, ((bx - ax) * dx + (by - ay) * dy) / (seg * seg)))
+            cx, cy = ax + dx * t, ay + dy * t
+            d = math.hypot(bx - cx, by - cy)
+            if best is None or d < best[0]:
+                best = (d, cx, cy, math.atan2(dy, dx))
+    if best is None:
+        return None
+    d, ex, ey, angle = best
+    out = math.hypot(ex - bx, ey - by) or 1.0
+    return (ex + math.cos(angle) * 3.0, ey + math.sin(angle) * 3.0, PLINTH_HEIGHT, angle)
+
+
 def build_ground(mat) -> None:
     half = GROUND_SIZE / 2.0
     verts = [(-half, -half, 0.0), (half, -half, 0.0), (half, half, 0.0), (-half, half, 0.0)]
@@ -250,6 +304,9 @@ def main() -> None:
         ring = ring_metres(geom["coordinates"][0], lat0, lon0)
         build_building(bid, ring, int(row.get("floors") or 1), wall_mat, roof_mat)
         built += 1
+        ent = nearest_road_point((ring[0][0], ring[0][1], 0.0), geojson.get("features", []), lat0, lon0, south, north, west, east)
+        if ent is not None:
+            add_entrance(f"ENTR_{bid[len('BLDG_'):]}", (ent[0], ent[1], ent[2]), ground_mat)
 
     roads = build_roads(geojson.get("features", []), lat0, lon0, south, north, west, east, road_mat)
 

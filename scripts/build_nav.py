@@ -70,13 +70,17 @@ def main() -> int:
         if p.get("layer") == "building" and f.get("geometry", {}).get("type") == "Polygon":
             building_geoms[str(p.get("osm_id"))] = shape(to_lonlat(f["geometry"]))
 
-    # ---------------- nav: buildings ------------------------------------
-    nodes: list[dict] = [{"id": b["id"], "x": 0.0, "z": 0.0} for b in campus["buildings"]]
+    # ---------------- nav: buildings (entrance markers) ----------------
+    nodes: list[dict] = [
+        {"id": f"ENTR_{b['osm_way']}", "x": 0.0, "z": 0.0}
+        for b in campus["buildings"]
+        if b.get("osm_way") is not None
+    ]
     building_xy: dict[str, tuple[float, float]] = {}
-    for node, b in zip(nodes, campus["buildings"]):
+    for node, b in zip(nodes, [b for b in campus["buildings"] if b.get("osm_way") is not None]):
         x, z = project(b["location"]["lat"], b["location"]["lon"])
         node["x"], node["z"] = round(x, 2), round(z, 2)
-        building_xy[b["id"]] = (x, z)
+        building_xy[node["id"]] = (x, z)
 
     # ---------------- nav: road network ---------------------------------
     road_nodes: dict[tuple[int, int], str] = {}
@@ -236,7 +240,7 @@ def main() -> int:
     with open(SCATTER, "w") as fh:
         json.dump(trees, fh)
 
-    building_nodes = sum(1 for n in nodes if n["id"].startswith("BLDG_"))
+    building_nodes = sum(1 for n in nodes if n["id"].startswith("ENTR_"))
     print(f"NAV_OK nodes={len(nodes)} links={len(nav['links'])} building_nodes={building_nodes} "
           f"scatter={len(trees)} -> public/data/nav.json + public/data/scatter.json")
     return 0

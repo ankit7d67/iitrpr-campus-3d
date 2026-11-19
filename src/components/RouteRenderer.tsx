@@ -25,8 +25,13 @@ export function RouteRenderer({ fromId, toId }: Props) {
   }, []);
 
   const result = useMemo(() => {
-    if (!nav || fromId === toId) return null;
-    const r = astar(nav, fromId, toId);
+    if (!nav) return null;
+    // Route endpoints are entrance markers (ENTR_<osm_id>) placed on the nearest path;
+    // deep links from the building list use the BLDG_<osm_id> building ids, so map them.
+    const from = fromId.startsWith('BLDG_') ? `ENTR_${fromId.slice(5)}` : fromId;
+    const to = toId.startsWith('BLDG_') ? `ENTR_${toId.slice(5)}` : toId;
+    if (from === to) return null;
+    const r = astar(nav, from, to);
     if (!r) return null;
     const linePoints = r.path.map((n) => [n.x, 0.6, n.z] as [number, number, number]);
     return { ...r, linePoints };

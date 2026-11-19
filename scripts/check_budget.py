@@ -51,6 +51,10 @@ def glb_stats(path: str) -> dict:
         elif name.startswith("BLDG_"):
             glb_ids.add(name)
 
+    buildings = sorted(n for n in glb_ids if n.startswith("BLDG_"))
+    entrances = sorted(n for n in glb_ids if n.startswith("ENTR_"))
+    all_bldg = sorted(glb_ids - {"GROUND", "ROAD_ALL"})
+
     return {
         "size_bytes": os.path.getsize(path),
         "nodes": len(j.get("nodes") or []),
@@ -59,7 +63,8 @@ def glb_stats(path: str) -> dict:
         "materials": len(j.get("materials") or []),
         "textures": len(j.get("textures") or []),
         "triangles": triangles,
-        "building_ids": sorted(glb_ids - {"GROUND", "ROAD_ALL"}),
+        "building_ids": buildings,
+        "entrance_ids": entrances,
     }
 
 
@@ -90,20 +95,25 @@ def main() -> int:
     campus = json.load(open(args.campus))
     nav = json.load(open(args.nav))
     campus_ids = {b.get("id") for b in (campus or {}).get("buildings") or []}
-    nav_ids = {n.get("id") for n in (nav or {}).get("nodes") or [] if str(n.get("id", "")).startswith("BLDG_")}
-    glb_ids = set(stats["building_ids"])
+    nav_ent_ids = {
+        n.get("id")
+        for n in (nav or {}).get("nodes") or []
+        if str(n.get("id") or "").startswith("ENTR_")
+    }
+    glb_ent = set(stats.get("entrance_ids") or [])
+    glb_bldg = set(stats.get("building_ids") or [])
 
     if not campus_ids:
         failures.append("campus.json has no buildings")
-    if campus_ids != glb_ids:
+    if campus_ids != glb_bldg:
         failures.append(
-            f"GLB ids != campus.json ids (missing in GLB: {sorted(campus_ids - glb_ids)[:5]}, "
-            f"extra in GLB: {sorted(glb_ids - campus_ids)[:5]})"
+            f"GLB buildings != campus.json buildings (missing in GLB: {sorted(campus_ids - glb_bldg)[:5]}, "
+            f"extra in GLB: {sorted(glb_bldg - campus_ids)[:5]})"
         )
-    if campus_ids != nav_ids:
+    if glb_ent != nav_ent_ids:
         failures.append(
-            f"nav.json ids != campus.json ids (missing in nav: {sorted(campus_ids - nav_ids)[:5]}, "
-            f"extra in nav: {sorted(nav_ids - campus_ids)[:5]})"
+            f"GLB entrances != nav.json entrances (missing in nav: {sorted(set(glb_ent) - nav_ent)[:5]}, "
+            f"extra in nav: {sorted(nav_ent - set(glb_ent))[:5]})"
         )
     if not (nav or {}).get("links"):
         failures.append("nav.json has no links")
