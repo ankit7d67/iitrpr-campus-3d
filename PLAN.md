@@ -590,6 +590,29 @@ ships with empty data; analytics included once a GoatCounter account exists.
   0.54 MB / 33,724 tris / 4 mats / 2 tex / meshopt + webp. First-load JS grew
   394 → 503 kB (the postprocessing runtime), still within the shipped budget.
 
+### 7-15 — Metadata, icon and cache-busting (done)
+
+- `src/app/layout.tsx` now has full metadata parity with the reference: title,
+  description, `applicationName`, authors/creator, `metadataBase` driven by
+  `NEXT_PUBLIC_SITE_URL`, OpenGraph + Twitter cards pointing at a new 1200×630
+  `public/og.jpg` (centre-cropped from the aerial preview), `robots`, and theme
+  colour. Added `src/app/icon.svg` (Next.js favicon route). Also removed the
+  old `userScalable: false` restriction so pinch-zoom works on mobile.
+- `scripts/manifest.mjs` (run at the end of `make assets`) writes SHA-256-based
+  10-char hashes for the GLB and all three data JSONs to
+  `public/models/manifest.json`. New `src/lib/assets.ts` prefixes `public/` URLs
+  with `NEXT_PUBLIC_BASE_PATH` and appends `?v=<hash>`; `CampusScene`, `data.ts`
+  and the layout use it. GitHub Pages cannot set cache headers, so unchanged
+  assets stay cached and rebuilt ones get a fresh URL.
+- E2E route interceptors now match the `?v=` suffix (`**/models/campus.glb*`,
+  `**/data/campus.json*`). New e2e case asserts the favicon, description and
+  OG-image meta tags, the manifest hash format, and that the actual GLB request
+  carries the manifest's hash.
+- QA: `make verify` **ALL GREEN** (44 unit tests), `make e2e` **36/36** on
+  chromium + pixel7 (was 34/34). CHECK_OK unchanged: 0.54 MB / 33,724 tris /
+  4 mats / 2 tex / meshopt + webp. Fixed one build lint error along the way
+  (an unused `base` variable in the new layout).
+
 ## Fixes
 
 - **(a)** Pad faces + retaining walls → `MAT_ground` via 3rd BLDG material slot (commit `08947bd`): 218 primitives, 4 materials, tris unchanged 26,654. verify + e2e 14/14.

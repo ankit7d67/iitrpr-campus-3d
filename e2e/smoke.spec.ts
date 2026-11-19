@@ -5,6 +5,23 @@ test('home page loads with title', async ({ page }) => {
   await expect(page).toHaveTitle(/IIT Ropar/);
 });
 
+test('metadata, icon and content-hashed asset URLs are wired', async ({ page }) => {
+  const glb = page.waitForResponse((r) => r.url().includes('/models/campus.glb?v='));
+  await page.goto('/');
+  const res = await glb;
+  expect(res.status()).toBe(200);
+  await expect(page.locator('link[rel="icon"]')).toHaveCount(1);
+  const description = await page.locator('meta[name="description"]').getAttribute('content');
+  expect(description).toContain('IIT Ropar');
+  const ogImage = await page.locator('meta[property="og:image"]').getAttribute('content');
+  expect(ogImage).toContain('/og.jpg');
+  const manifest = await page.evaluate(async () =>
+    (await (await fetch('/models/manifest.json')).json()) as Record<string, string>,
+  );
+  expect(manifest['models/campus.glb']).toMatch(/^[0-9a-f]{10}$/);
+  expect(res.url()).toContain(`v=${manifest['models/campus.glb']}`);
+});
+
 test('campus GLB is served and the canvas renders', async ({ page }) => {
   // A broken shader/texture (7-9 baked maps) still leaves a visible canvas, so
   // also fail on WebGL/material console errors.
@@ -115,7 +132,7 @@ test('sky and street lamps switch on at night', async ({ page }) => {
 
 test('loading screen shows progress while the model loads, then disappears', async ({ page }) => {
   // Delay the GLB so the loader is observable deterministically.
-  await page.route('**/models/campus.glb', async (route) => {
+  await page.route('**/models/campus.glb*', async (route) => {
     await new Promise((resolve) => setTimeout(resolve, 900));
     await route.continue();
   });
@@ -153,7 +170,7 @@ test('building labels are visible and clicking one zooms into it', async ({ page
 });
 
 test('data fetch failure shows an actionable error card', async ({ page }) => {
-  await page.route('**/data/campus.json', (route) => route.fulfill({ status: 500, body: 'fail' }));
+  await page.route('**/data/campus.json*', (route) => route.fulfill({ status: 500, body: 'fail' }));
   await page.goto('/');
   // Scope to our card: Next.js injects its own empty route-announcer [role=alert].
   const alert = page.locator('.loader-error[role="alert"]');

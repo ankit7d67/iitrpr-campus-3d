@@ -38,6 +38,14 @@ make verify     # full check: budget + tests + build ; ends with "ALL GREEN"
 | `make verify` | full verification; ends with `ALL GREEN` |
 | `make clean` | remove generated artefacts |
 
+## Deployment environment
+
+- `NEXT_PUBLIC_BASE_PATH` — e.g. `/iitrpr-campus-3d` when served from a GitHub Pages
+  project path. This prefixes all `public/` asset URLs (`src/lib/assets.ts`) and
+  Next.js's own `basePath`.
+- `NEXT_PUBLIC_SITE_URL` — e.g. `https://<user>.github.io`, used as the metadata
+  base so OpenGraph/Twitter share images resolve to absolute URLs.
+
 ## Data pipeline
 
 ```

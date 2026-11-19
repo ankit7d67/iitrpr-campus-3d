@@ -2,6 +2,7 @@ import { Canvas, type ThreeEvent } from '@react-three/fiber';
 import { OrbitControls, ContactShadows, Gltf } from '@react-three/drei';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
+import { CAMPUS_GLB } from '../lib/assets';
 import { loadScatter } from '../lib/data';
 import { getSunInfo, nightFactor } from '../lib/sun';
 import { useCampusStore } from '../lib/store';
@@ -12,8 +13,6 @@ import { SkyDome } from './SkyDome';
 import { StreetLamps } from './StreetLamps';
 import { Labels } from './Labels';
 import { Effects } from './Effects';
-
-const CAMPUS_GLB = '/models/campus.glb';
 
 type LabelAnchors = Record<string, [number, number, number]>;
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { CAMPUS_JSON, NAV_JSON, SCATTER_JSON } from './assets';
 import { campusSchema, buildingArraySchema } from './schema';
 import type { Building, Campus, NavGraph, ScatterEntry } from './types';
 
@@ -8,7 +9,7 @@ let scatterCache: ScatterEntry[] | null = null;
 
 export async function loadCampus(): Promise<Campus> {
   if (campusCache) return campusCache;
-  const res = await fetch('/data/campus.json');
+  const res = await fetch(CAMPUS_JSON);
   if (!res.ok) throw new Error(`Failed to load /data/campus.json (${res.status})`);
   const raw = (await res.json()) as unknown;
   const parsed = campusSchema.parse(raw) as Campus;
@@ -18,7 +19,7 @@ export async function loadCampus(): Promise<Campus> {
 
 export async function loadNav(): Promise<NavGraph> {
   if (navCache) return navCache;
-  const res = await fetch('/data/nav.json');
+  const res = await fetch(NAV_JSON);
   if (!res.ok) throw new Error(`Failed to load /data/nav.json (${res.status})`);
   const raw = (await res.json()) as unknown;
   const parsed = JSON.parse(JSON.stringify(raw)) as NavGraph;
@@ -28,7 +29,7 @@ export async function loadNav(): Promise<NavGraph> {
 
 export async function loadScatter(): Promise<ScatterEntry[]> {
   if (scatterCache) return scatterCache;
-  const res = await fetch('/data/scatter.json');
+  const res = await fetch(SCATTER_JSON);
   if (!res.ok) throw new Error(`Failed to load /data/scatter.json (${res.status})`);
   const raw = (await res.json()) as unknown;
   const parsed = (Array.isArray(raw) ? raw : (raw as { scatter?: ScatterEntry[] }).scatter ?? []) as ScatterEntry[];
