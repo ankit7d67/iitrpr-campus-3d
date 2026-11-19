@@ -1,0 +1,2 @@
+# Keep JSON line endings stable across Windows and Linux so asset hashes match.
+*.json text eol=lf

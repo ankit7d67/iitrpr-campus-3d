@@ -160,6 +160,8 @@ test('quality selector reports the effective tier and switches modes', async ({ 
 
 test('building labels are visible and clicking one zooms into it', async ({ page }) => {
   await page.goto('/');
+  // Mobile emulation loads the GLB more slowly; labels mount only after loading.
+  await expect(page.getByTestId('loader')).toBeHidden({ timeout: 20000 });
   const label = page.locator('[data-testid="map-label"]').filter({ hasText: 'Nalanda library' }).first();
   await expect(label).toBeVisible();
   await label.click();

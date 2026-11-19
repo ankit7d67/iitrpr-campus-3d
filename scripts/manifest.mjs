@@ -16,9 +16,15 @@ const out = {};
 for (const file of FILES) {
   const full = path.join(ROOT, file);
   if (!fs.existsSync(full)) throw new Error(`missing ${file}; run \`make assets\` first`);
+  const raw = fs.readFileSync(full);
+  // JSON is checked out with LF on Linux but can be CRLF on Windows. Hash the
+  // normalised text so the manifest matches on every platform.
+  const bytes = file.endsWith('.json')
+    ? Buffer.from(raw.toString('utf8').replace(/\r\n/g, '\n'))
+    : raw;
   out[file.slice('public/'.length)] = crypto
     .createHash('sha256')
-    .update(fs.readFileSync(full))
+    .update(bytes)
     .digest('hex')
     .slice(0, 10);
 }

@@ -21,10 +21,13 @@ describe('asset manifest (7-15)', () => {
 
   it.each(Object.entries(manifest))('hash for %s matches the file', (file, hash) => {
     expect(hash).toMatch(/^[0-9a-f]{10}$/);
-    const actual = createHash('sha256')
-      .update(fs.readFileSync(`public/${file}`))
-      .digest('hex')
-      .slice(0, 10);
+    const raw = fs.readFileSync(`public/${file}`);
+    // Match scripts/manifest.mjs: JSON hashes are computed from LF text so the
+    // same manifest is valid on Windows (CRLF checkout) and Linux (LF checkout).
+    const bytes = file.endsWith('.json')
+      ? Buffer.from(raw.toString('utf8').replace(/\r\n/g, '\n'))
+      : raw;
+    const actual = createHash('sha256').update(bytes).digest('hex').slice(0, 10);
     expect(actual).toBe(hash);
   });
 
