@@ -1,6 +1,6 @@
 'use client';
 
-import { formatTime, fromLocalInputValue, getSunInfo, toLocalInputValue } from '../lib/sun';
+import { formatTime, fromLocalInputValue, getSunInfo, nightFactor, toLocalInputValue } from '../lib/sun';
 import { useCampusStore } from '../lib/store';
 
 /**
@@ -18,6 +18,7 @@ export function SunPanel() {
   const setNight = useCampusStore((s) => s.setNight);
 
   const info = getSunInfo(sunUtcMs);
+  const lampsLit = night || nightFactor(info) > 0.5;
 
   const onChange = (value: string) => {
     const t = fromLocalInputValue(value);
@@ -49,6 +50,9 @@ export function SunPanel() {
       </p>
       <p className="muted sun-info">
         Sunrise {formatTime(info.sunriseUtcMs)} · sunset {formatTime(info.sunsetUtcMs)}
+      </p>
+      <p className="muted sun-info" data-testid="lamp-status">
+        Street lamps: {lampsLit ? 'lit' : 'off'}
       </p>
     </div>
   );

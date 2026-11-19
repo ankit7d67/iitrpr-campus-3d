@@ -31,6 +31,15 @@ Every guessed or placeholder value must be listed here and in the README ("Value
 - Absolute elevations (~262–267 m) come from the DEM and are plausible for the Sutlej plain
   but were not surveyed; verify against a topographic map if exact heights matter.
 
+## Scatter props (trees / street lamps)
+
+- The 250 trees and 80 street lamps in `public/data/scatter.json` are **synthetic
+  decorations**, not objects mapped in OSM. They are placed deterministically along
+  OSM road centrelines by `scripts/build_nav.py` (trees 35 m spacing / 6.5 m offset,
+  lamps 90 m spacing / 4.5 m offset on the opposite side). Their exact positions,
+  count and appearance are unverified against the real campus — do not treat them as
+  an inventory of actual street furniture.
+
 ## Placeholders
 
 - Missing OSM footprints (buildings/roads) go to `data-src/extra_footprints.geojson` with

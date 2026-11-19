@@ -149,6 +149,19 @@ def main() -> int:
     scatter = json.load(open(args.scatter)) if os.path.exists(args.scatter) else []
     if not scatter:
         failures.append("scatter.json is empty")
+    scatter_types: dict[str, int] = {}
+    scatter_ids: set[str] = set()
+    for entry in scatter:
+        kind = entry.get("type", "?")
+        scatter_types[kind] = scatter_types.get(kind, 0) + 1
+        sid = entry.get("id", "")
+        if sid in scatter_ids:
+            failures.append(f"duplicate scatter id {sid!r}")
+        scatter_ids.add(sid)
+        if not isinstance(entry.get("position"), list) or len(entry["position"]) != 3:
+            failures.append(f"scatter {sid!r} has no 3-D position")
+    if scatter_types.get("lamp", 0) < 1:
+        failures.append("scatter.json has no street lamps")
 
     for f in failures:
         print(f"FAIL: {f}")
@@ -169,6 +182,7 @@ def main() -> int:
             "nav_nodes": len((nav or {}).get("nodes") or []),
             "nav_links": len((nav or {}).get("links") or []),
             "scatter": len(scatter),
+            "scatter_types": dict(sorted(scatter_types.items())),
         }),
     )
     return 0

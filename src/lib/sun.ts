@@ -96,6 +96,16 @@ export function getSunInfo(utcMs: number): SunInfo {
   };
 }
 
+/**
+ * 0 in full daylight, 1 once the sun is 6° below the horizon, with a smooth
+ * dusk/dawn ramp in between (civil twilight ends at −6°). Shared by the sky,
+ * stars, moon and street lamps so they all switch on at the same moment.
+ */
+export function nightFactor(info: SunInfo): number {
+  const t = (6 - info.elevationDeg) / 12;
+  return Math.min(1, Math.max(0, t));
+}
+
 export function formatTime(utcMs: number): string {
   const d = new Date(utcMs + IST_OFFSET_MS);
   const h = d.getUTCHours();

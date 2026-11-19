@@ -3,6 +3,7 @@ import {
   formatTime,
   fromLocalInputValue,
   getSunInfo,
+  nightFactor,
   toLocalInputValue,
   walkingTimeMinutes,
 } from '../src/lib/sun';
@@ -52,6 +53,16 @@ describe('sun', () => {
     const sunset = formatTime(info.sunsetUtcMs);
     expect(sunrise >= '05:00' && sunrise <= '06:00').toBe(true);
     expect(sunset >= '19:00' && sunset <= '20:00').toBe(true);
+  });
+
+  it('night factor ramps over civil twilight and saturates after dark', () => {
+    const noon = getSunInfo(Date.UTC(2026, 5, 15, 7, 0)); // 12:30 IST, high sun
+    const dusk = getSunInfo(Date.UTC(2026, 5, 15, 13, 30)); // 19:00 IST, sun near horizon
+    const midnight = getSunInfo(Date.UTC(2026, 5, 15, 18, 30)); // 00:00 IST
+    expect(nightFactor(noon)).toBe(0);
+    expect(nightFactor(midnight)).toBe(1);
+    expect(nightFactor(dusk)).toBeGreaterThan(0);
+    expect(nightFactor(dusk)).toBeLessThan(1);
   });
 
   it('round-trips IST datetime-local input values', () => {

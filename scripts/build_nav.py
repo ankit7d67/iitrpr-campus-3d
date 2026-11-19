@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Generate public/data/nav.json (walking graph) and public/data/scatter.json (trees).
+"""Generate public/data/nav.json (walking graph) and public/data/scatter.json (trees + street lamps).
 
 Run via `make assets` after the GLB export.
 
@@ -27,6 +27,9 @@ ROAD_MARGIN = 0.0015  # degrees (~150 m) around the campus bbox
 TREE_SPACING = 35.0   # metres between trees along a road
 TREE_OFFSET = 6.5     # metres from the road centreline
 MAX_TREES = 250
+LAMP_SPACING = 90.0   # metres between street lamps along a road
+LAMP_OFFSET = 4.5     # metres from the road centreline (opposite side to trees)
+MAX_LAMPS = 80
 
 
 def local_scale(lat: float) -> tuple[float, float]:
@@ -237,12 +240,51 @@ def main() -> int:
                 "scale": round(rng.uniform(0.8, 1.3), 2),
             })
 
+    # ---------------- scatter: street lamps along roads ------------------
+    # Lamps reuse the same road lines and exclusion tests as the trees, but sit
+    # on the opposite side at a wider spacing and never collide with a tree.
+    lamps = []
+    for line in road_lines:
+        if len(lamps) >= MAX_LAMPS:
+            break
+        steps = int(line.length * 106_000.0 / LAMP_SPACING)
+        if steps < 1:
+            continue
+        for i in range(steps):
+            if len(lamps) >= MAX_LAMPS:
+                break
+            frac = (i + 0.5) / steps
+            pt = line.interpolate(frac, normalized=True)
+            d = 1e-4
+            p0 = line.interpolate(max(0.0, frac - d), normalized=True)
+            p1 = line.interpolate(min(1.0, frac + d), normalized=True)
+            dx, dy = p1.x - p0.x, p1.y - p0.y
+            norm = math.hypot(dx, dy) or 1.0
+            offset = LAMP_OFFSET * (-1 if i % 2 == 0 else 1)
+            cand = Point(pt.x - dy / norm * offset * 1e-5, pt.y + dx / norm * offset * 1e-5)
+            if not boundary.contains(cand):
+                continue
+            if not footprints.is_empty and footprints.buffer(4e-5).contains(cand):
+                continue
+            if road_union is not None and road_union.distance(cand) < 3.5e-5:
+                continue
+            x, z = project(cand.y, cand.x)
+            if any(math.hypot(x - t["position"][0], z - t["position"][2]) < 9.0 for t in trees):
+                continue
+            lamps.append({
+                "type": "lamp",
+                "id": f"SCAT_lamp_{len(lamps) + 1:03d}",
+                "position": [round(x, 2), 0.0, round(z, 2)],
+                "rotation": [0.0, round(rng.uniform(0, 2 * math.pi), 3), 0.0],
+                "scale": 1.0,
+            })
+
     with open(SCATTER, "w") as fh:
-        json.dump(trees, fh)
+        json.dump(trees + lamps, fh)
 
     building_nodes = sum(1 for n in nodes if n["id"].startswith("ENTR_"))
     print(f"NAV_OK nodes={len(nodes)} links={len(nav['links'])} building_nodes={building_nodes} "
-          f"scatter={len(trees)} -> public/data/nav.json + public/data/scatter.json")
+          f"scatter={len(trees)} trees + {len(lamps)} lamps -> public/data/nav.json + public/data/scatter.json")
     return 0
 
 

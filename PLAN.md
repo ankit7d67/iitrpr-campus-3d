@@ -421,6 +421,38 @@ ships with empty data; analytics included once a GoatCounter account exists.
   **20/20** (new "sun panel shows solar info and reacts to time changes"),
   numeric ROAD/PAD/DEM all PASS (model unchanged). Fresh screenshots.
 
+### 7-8 — Sky, stars/moon and street lamps (done)
+
+- New `src/components/SkyDome.tsx`: three.js's procedural Preetham `Sky` dome
+  (no textures, no GLB geometry), positioned from the **same** solar
+  azimuth/elevation as the 7-7 key light; turbidity/rayleigh follow twilight.
+  Adds horizon fog (`900…6500 m`) that fades from day haze `#bcd4e6` to night
+  `#0b1426`, drei `Stars` (3000, static) and an unlit moon sphere placed
+  opposite the sun once the sun is more than ~8° below the horizon.
+- New `src/lib/sun.ts` `nightFactor(info)`: 0 in daylight → 1 at −6° (end of
+  civil twilight), shared by sky, stars, moon, window glow and lamps. Two new
+  unit tests pin the ramp (39 total).
+- **Street lamps:** `scripts/build_nav.py` now derives `SCAT_lamp_###` entries
+  from the same road lines as the trees (90 m spacing, 4.5 m offset on the
+  opposite side, ≥9 m from any tree, boundary/footprint/road exclusions).
+  Regenerated `public/data/scatter.json` = 250 trees + 80 lamps; **nav.json
+  SHA-256 unchanged** (`9e2f62c9…`), so routing is untouched.
+- New `src/components/StreetLamps.tsx`: 80 lamps drawn in three instanced draw
+  calls (6-sided post, emissive head, ground pool) plus one Points halo. All
+  procedural at runtime — the GLB stays at 4 materials / 0 textures and the
+  one radial glow texture is created in-browser, not shipped in the model.
+  Both `Trees` and `StreetLamps` now filter `scatter.json` by `type` so lamps
+  are never drawn as cones. `SunPanel` shows a `Street lamps: lit/off` status
+  that also honours the manual Night toggle (e2e hook + user feedback).
+- QA: `make verify` **ALL GREEN** (39 unit tests + build), e2e **22/22** (new
+  night-time sky/lamps test on chromium + pixel7), fresh `ui-desktop.png` /
+  `ui-phone.png`. CHECK_OK unchanged 33,724 tris / 1.63 MB / 4 mats / 0 tex /
+  54 buildings / 9 tour stops / 6 landmarks / 626 nav nodes / 666 links;
+  scatter now 330 (250 tree + 80 lamp) with unique ids. LAMP_QA: 80 lamps,
+  min lamp↔tree gap 9.37 m, all within the projected bbox, all y=0.
+  SCENE_TRI_QA: GLB 33,724 + 2,500 trees + 8,980 lamps = **45,204 tris in view**
+  (≤150k). DEM_GRID_OK PASS (unchanged model).
+
 ## Fixes
 
 - **(a)** Pad faces + retaining walls → `MAT_ground` via 3rd BLDG material slot (commit `08947bd`): 218 primitives, 4 materials, tris unchanged 26,654. verify + e2e 14/14.

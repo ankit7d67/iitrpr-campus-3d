@@ -55,6 +55,18 @@ test('sun panel shows solar info and reacts to time changes', async ({ page }) =
   await expect(elev).not.toHaveText(before);
 });
 
+test('sky and street lamps switch on at night', async ({ page }) => {
+  await page.goto('/');
+  const lamps = page.getByTestId('lamp-status');
+  await expect(lamps).toContainText('off');
+  const sun = page.locator('.sun-panel');
+  await sun.locator('#sun-time').fill('2026-06-15T22:00');
+  await expect(lamps).toContainText('lit');
+  await expect(page.locator('canvas').first()).toBeVisible();
+  await sun.locator('#sun-time').fill('2026-06-15T12:30');
+  await expect(lamps).toContainText('off');
+});
+
 test('search finds a building and opens the info panel', async ({ page }) => {
   await page.goto('/');
   const input = page.getByPlaceholder('Search buildings, hostels, departments');

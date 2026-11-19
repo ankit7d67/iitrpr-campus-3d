@@ -8,6 +8,8 @@ import { useCampusStore } from '../lib/store';
 import type { ScatterEntry } from '../lib/types';
 import { RouteRenderer } from './RouteRenderer';
 import { CameraFocus } from './CameraFocus';
+import { SkyDome } from './SkyDome';
+import { StreetLamps } from './StreetLamps';
 
 const CAMPUS_GLB = '/models/campus.glb';
 
@@ -75,6 +77,8 @@ export function CampusScene() {
   const sunUtcMs = useCampusStore((s) => s.sunUtcMs);
   const route = useCampusStore((s) => s.route);
   const [scatter, setScatter] = useState<ScatterEntry[]>([]);
+  const lamps = useMemo(() => scatter.filter((s) => s.type === 'lamp'), [scatter]);
+  const trees = useMemo(() => scatter.filter((s) => s.type === 'tree'), [scatter]);
   const gltfRef = useRef<THREE.Group>(null);
 
   // Time-of-day lighting (7-7): the solar model drives the key light's
@@ -132,13 +136,15 @@ export function CampusScene() {
       gl={{ antialias: glbEnabled, alpha: true }}
       shadows={glbEnabled}
     >
+      <SkyDome />
       <ambientLight intensity={ambientIntensity} />
       <directionalLight position={keyPosition} intensity={keyIntensity} castShadow={glbEnabled} shadow-mapSize={[2048, 2048]} color={keyColor} />
       <directionalLight position={[-300, 200, -250]} intensity={dim ? 0.1 : 0.35} />
       <Suspense fallback={null}>
         {glbEnabled ? <Gltf src={CAMPUS_GLB} ref={attachGltf} /> : null}
       </Suspense>
-      <Trees scatter={scatter} />
+      <Trees scatter={trees} />
+      <StreetLamps lamps={lamps} />
       {/* Route line must render inside the Canvas (drei <Line> needs R3F context) */}
       {route && <RouteRenderer fromId={route.fromId} toId={route.toId} />}
       <CameraFocus />
