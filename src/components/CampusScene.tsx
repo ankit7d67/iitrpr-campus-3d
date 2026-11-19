@@ -91,7 +91,7 @@ export function CampusScene() {
   return (
     <Canvas
       dpr={quality === 'high' ? [1, 2] : [1, 1]}
-      camera={{ position: [520, 620, 780], fov: 50, near: 1, far: 20000 }}
+      camera={{ position: [1150, 1500, 1750], fov: 50, near: 1, far: 20000 }}
       gl={{ antialias: glbEnabled, alpha: true }}
       shadows={glbEnabled}
     >
@@ -102,7 +102,7 @@ export function CampusScene() {
         {glbEnabled ? <Gltf src={CAMPUS_GLB} ref={gltfRef} /> : null}
       </Suspense>
       <Trees scatter={scatter} />
-      <ContactShadows position={[0, 0.1, 0]} opacity={0.35} scale={4200} blur={2.5} far={60} />
+      <ContactShadows position={[0, 0.1, 0]} opacity={0.35} scale={2500} blur={2.5} far={60} />
       <OrbitControls enablePan enableDamping makeDefault target={[0, 0, 0]} maxDistance={8000} />
     </Canvas>
   );

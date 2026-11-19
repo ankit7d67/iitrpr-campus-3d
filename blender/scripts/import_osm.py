@@ -24,11 +24,17 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 FLOOR_HEIGHT = 3.5
 PLINTH_HEIGHT = 0.6
 ROAD_WIDTHS = {"tertiary": 8.0, "unclassified": 6.0, "service": 4.0, "path": 2.5}
-GROUND_SIZE = 5000.0
-GROUND_SEGS = 80  # ground grid subdivisions (terrain follows the DEM inside the bbox)
+GROUND_PAD = 150.0    # ground extends this far beyond the campus bbox (m)
+GROUND_CELL = 25.0    # target terrain cell size (m); the grid rounds to whole cells
+GROUND_W = 0.0        # actual east-west ground extent (m), computed in main()
+GROUND_H = 0.0        # actual north-south ground extent (m), computed in main()
+GROUND_SEGS_X = 1     # grid subdivisions per axis, computed in main()
+GROUND_SEGS_Y = 1
 ROAD_Z = 0.06
-ROAD_LIFT = 0.1    # road surface above the GROUND mesh surface (m)
-ROAD_SEG_M = 10.0  # densify longer segments so ribbons follow the terrain mesh
+ROAD_LIFT = 0.15  # road surface above the GROUND mesh surface (m); must exceed the worst
+# ground bulge under a ribbon chord (~0.117 m measured with 25 m ground cells), otherwise
+# road quad interiors dip below the terrain (ROAD_QA).
+ROAD_SEG_M = 5.0  # densify longer segments so ribbons follow the terrain mesh
 KERB_H = 0.15   # kerb rise above the road surface (m)
 KERB_W = 0.35   # kerb lip width (m)
 KERB_HIGHWAYS = {"tertiary", "unclassified"}  # only real streets get kerbs
@@ -95,17 +101,17 @@ def ground_surface_z(grid: dict | None, x: float, y: float, lat0: float, lon0: f
     """
     if not grid:
         return 0.0
-    half = GROUND_SIZE / 2.0
-    segs = GROUND_SEGS
-    cell = GROUND_SIZE / segs
-    fx = (x + half) / cell
-    fy = (y + half) / cell
-    i = min(max(int(fx), 0), segs - 1)
-    j = min(max(int(fy), 0), segs - 1)
+    half_x, half_y = GROUND_W / 2.0, GROUND_H / 2.0
+    segs_x, segs_y = GROUND_SEGS_X, GROUND_SEGS_Y
+    cell_x, cell_y = GROUND_W / segs_x, GROUND_H / segs_y
+    fx = (x + half_x) / cell_x
+    fy = (y + half_y) / cell_y
+    i = min(max(int(fx), 0), segs_x - 1)
+    j = min(max(int(fy), 0), segs_y - 1)
     tx = min(max(fx - i, 0.0), 1.0)
     ty = min(max(fy - j, 0.0), 1.0)
-    x0, y0 = -half + i * cell, -half + j * cell
-    x1, y1 = x0 + cell, y0 + cell
+    x0, y0 = -half_x + i * cell_x, -half_y + j * cell_y
+    x1, y1 = x0 + cell_x, y0 + cell_y
     h00 = terrain_z_xy(grid, x0, y0, lat0, lon0)
     h10 = terrain_z_xy(grid, x1, y0, lat0, lon0)
     h01 = terrain_z_xy(grid, x0, y1, lat0, lon0)
@@ -344,31 +350,36 @@ def nearest_road_point(pt: tuple[float, float, float], features: list, lat0: flo
 
 
 def build_ground(mat, grid: dict | None, lat0: float, lon0: float) -> None:
-    """Subdivided ground plane that follows the DEM inside the campus bbox (clamped flat
-    outside it). Without a DEM this degrades to the old flat quad."""
-    half = GROUND_SIZE / 2.0
+    """Rectangular ground plane over the campus bbox + GROUND_PAD metres that follows
+    the DEM inside the bbox (clamped flat outside it). Without a DEM this degrades to
+    a flat quad of the same extent."""
+    half_x, half_y = GROUND_W / 2.0, GROUND_H / 2.0
     if not grid:
-        verts = [(-half, -half, 0.0), (half, -half, 0.0), (half, half, 0.0), (-half, half, 0.0)]
+        verts = [(-half_x, -half_y, 0.0), (half_x, -half_y, 0.0), (half_x, half_y, 0.0), (-half_x, half_y, 0.0)]
         obj = add_mesh_object("GROUND", verts, [(0, 1, 2, 3)], [mat])
         obj["bid"] = "GROUND"
         return
-    segs = GROUND_SEGS
+    segs_x, segs_y = GROUND_SEGS_X, GROUND_SEGS_Y
     verts = []
-    for j in range(segs + 1):
-        y = -half + GROUND_SIZE * j / segs
-        for i in range(segs + 1):
-            x = -half + GROUND_SIZE * i / segs
+    for j in range(segs_y + 1):
+        y = -half_y + GROUND_H * j / segs_y
+        for i in range(segs_x + 1):
+            x = -half_x + GROUND_W * i / segs_x
             verts.append((x, y, terrain_z_xy(grid, x, y, lat0, lon0)))
     faces = []
-    row = segs + 1
-    for j in range(segs):
-        for i in range(segs):
+    row = segs_x + 1
+    for j in range(segs_y):
+        for i in range(segs_x):
             a = j * row + i
             # Explicit triangles with the diagonal ground_surface_z() interpolates over,
             # so the exported mesh has no re-tessellation ambiguity.
             faces.append((a, a + 1, a + row + 1))
             faces.append((a, a + row + 1, a + row))
     obj = add_mesh_object("GROUND", verts, faces, [mat])
+    # Smooth normals: flat shading makes the glTF exporter duplicate every vertex for
+    # per-face normals (~4.7x GROUND size); smooth keeps one vertex per grid point.
+    for poly in obj.data.polygons:
+        poly.use_smooth = True
     obj["bid"] = "GROUND"
 
 
@@ -480,12 +491,23 @@ def build_roads(features: list, lat0: float, lon0: float, south: float, north: f
 
 
 def main() -> None:
+    global GROUND_W, GROUND_H, GROUND_SEGS_X, GROUND_SEGS_Y
     bpy.ops.wm.read_factory_settings(use_empty=True)
     os.makedirs(os.path.join(ROOT, "build"), exist_ok=True)
 
     bbox = json.load(open(os.path.join(ROOT, "data-src", "campus_bbox.json")))
     south, north, west, east = (float(x) for x in bbox["boundingbox"][:4])
     lat0, lon0 = (south + north) / 2.0, (west + east) / 2.0
+
+    # Ground extent = campus bbox + GROUND_PAD metres, gridded at ~GROUND_CELL metres.
+    m_lat, m_lon = local_scale(lat0)
+    GROUND_W = (east - west) * m_lon + 2.0 * GROUND_PAD
+    GROUND_H = (north - south) * m_lat + 2.0 * GROUND_PAD
+    GROUND_SEGS_X = max(8, round(GROUND_W / GROUND_CELL))
+    GROUND_SEGS_Y = max(8, round(GROUND_H / GROUND_CELL))
+    print(f"GROUND: {GROUND_W:.1f} x {GROUND_H:.1f} m (bbox + {GROUND_PAD:.0f} m), "
+          f"grid {GROUND_SEGS_X}x{GROUND_SEGS_Y} "
+          f"({GROUND_W / GROUND_SEGS_X:.2f} x {GROUND_H / GROUND_SEGS_Y:.2f} m cells)")
 
     facade = {}
     with open(os.path.join(ROOT, "data-src", "facade_sheet.csv"), newline="") as f:
