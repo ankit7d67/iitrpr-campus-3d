@@ -64,12 +64,14 @@ def bake_ao(objects) -> None:
         mesh = o.data
         if mesh is None or not mesh.vertices:
             continue
-        height = max((v.co.z for v in mesh.vertices), default=0.0)
+        zs = [v.co.z for v in mesh.vertices]
+        height = max(zs) - min(zs)
         if height <= 0.0:
             continue
+        z0 = min(zs)
         attr = mesh.color_attributes.new(name="AO", type="BYTE_COLOR", domain="POINT")
         for i, v in enumerate(mesh.vertices):
-            t = (v.co.z / height) if height else 0.0
+            t = (v.co.z - z0) / height
             ao = min(1.0, max(0.0, 0.55 + 0.45 * t))
             attr.data[i].color = (ao, ao, ao, 1.0)
         baked += 1

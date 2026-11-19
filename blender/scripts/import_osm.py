@@ -25,7 +25,57 @@ FLOOR_HEIGHT = 3.5
 PLINTH_HEIGHT = 0.6
 ROAD_WIDTHS = {"tertiary": 8.0, "unclassified": 6.0, "service": 4.0, "path": 2.5}
 GROUND_SIZE = 5000.0
+GROUND_SEGS = 40  # ground grid subdivisions (terrain follows the DEM inside the bbox)
 ROAD_Z = 0.06
+
+
+def load_dem_grid() -> dict | None:
+    """Load build/dem_grid.json (written by scripts/dem_grid.py) or None -> flat ground."""
+    path = os.path.join(ROOT, "build", "dem_grid.json")
+    if not os.path.exists(path):
+        print("DEM: no build/dem_grid.json -> flat ground")
+        return None
+    try:
+        with open(path) as f:
+            grid = json.load(f)
+        print(f"DEM: grid {grid['rows']}x{grid['cols']} mean={grid['mean']:.1f} m -> terrain on")
+        return grid
+    except Exception as exc:  # noqa: BLE001 - never fail the build over a missing DEM
+        print(f"WARN: dem_grid unreadable ({exc}) -> flat ground")
+        return None
+
+
+def dem_sample(grid: dict | None, lat: float, lon: float) -> float:
+    """Bilinear DEM height (m); clamps to the grid edge outside coverage."""
+    if not grid:
+        return 0.0
+    west, south, east, north = grid["west"], grid["south"], grid["east"], grid["north"]
+    cols, rows = grid["cols"], grid["rows"]
+    fx = (lon - west) / (east - west) * (cols - 1)
+    fy = (north - lat) / (north - south) * (rows - 1)
+    fx = min(max(fx, 0.0), cols - 1.001)
+    fy = min(max(fy, 0.0), rows - 1.001)
+    x0, y0 = int(fx), int(fy)
+    tx, ty = fx - x0, fy - y0
+    h = grid["heights"]
+    h00, h10 = h[y0][x0], h[y0][x0 + 1]
+    h01, h11 = h[y0 + 1][x0], h[y0 + 1][x0 + 1]
+    return (h00 * (1 - tx) * (1 - ty) + h10 * tx * (1 - ty)
+            + h01 * (1 - tx) * ty + h11 * tx * ty)
+
+
+def terrain_z(grid: dict | None, lat: float, lon: float) -> float:
+    """Terrain height relative to the campus mean (so buildings keep their z=0 base)."""
+    if not grid:
+        return 0.0
+    return dem_sample(grid, lat, lon) - grid["mean"]
+
+
+def terrain_z_xy(grid: dict | None, x: float, y: float, lat0: float, lon0: float) -> float:
+    if not grid:
+        return 0.0
+    m_lat, m_lon = local_scale(lat0)
+    return terrain_z(grid, lat0 + y / m_lat, lon0 + x / m_lon)
 
 
 def srgb_to_linear(c: float) -> float:
@@ -98,14 +148,15 @@ def add_mesh_object(name: str, verts: list, faces: list, mats: list, face_mats: 
     return obj
 
 
-def build_building(bid: str, ring: list[tuple[float, float]], floors: int, wall_mat, roof_mat) -> None:
+def build_building(bid: str, ring: list[tuple[float, float]], floors: int, wall_mat, roof_mat,
+                   base_z: float = 0.0) -> None:
     if len(ring) < 3:
         return
     if signed_area(ring) < 0:
         ring = list(reversed(ring))
     height = PLINTH_HEIGHT + max(1, floors) * FLOOR_HEIGHT
     n = len(ring)
-    verts = [(x, y, 0.0) for x, y in ring] + [(x, y, height) for x, y in ring]
+    verts = [(x, y, base_z) for x, y in ring] + [(x, y, base_z + height) for x, y in ring]
     faces = [(i, (i + 1) % n, n + (i + 1) % n, n + i) for i in range(n)]
     faces.append(tuple(range(n, 2 * n)))  # flat roof
     # Walls use material 0, the roof face uses material 1.
@@ -169,14 +220,33 @@ def nearest_road_point(pt: tuple[float, float, float], features: list, lat0: flo
     return (ex + math.cos(angle) * 3.0, ey + math.sin(angle) * 3.0, PLINTH_HEIGHT, angle)
 
 
-def build_ground(mat) -> None:
+def build_ground(mat, grid: dict | None, lat0: float, lon0: float) -> None:
+    """Subdivided ground plane that follows the DEM inside the campus bbox (clamped flat
+    outside it). Without a DEM this degrades to the old flat quad."""
     half = GROUND_SIZE / 2.0
-    verts = [(-half, -half, 0.0), (half, -half, 0.0), (half, half, 0.0), (-half, half, 0.0)]
-    obj = add_mesh_object("GROUND", verts, [(0, 1, 2, 3)], [mat])
+    if not grid:
+        verts = [(-half, -half, 0.0), (half, -half, 0.0), (half, half, 0.0), (-half, half, 0.0)]
+        obj = add_mesh_object("GROUND", verts, [(0, 1, 2, 3)], [mat])
+        obj["bid"] = "GROUND"
+        return
+    segs = GROUND_SEGS
+    verts = []
+    for j in range(segs + 1):
+        y = -half + GROUND_SIZE * j / segs
+        for i in range(segs + 1):
+            x = -half + GROUND_SIZE * i / segs
+            verts.append((x, y, terrain_z_xy(grid, x, y, lat0, lon0)))
+    faces = []
+    row = segs + 1
+    for j in range(segs):
+        for i in range(segs):
+            a = j * row + i
+            faces.append((a, a + 1, a + row + 1, a + row))
+    obj = add_mesh_object("GROUND", verts, faces, [mat])
     obj["bid"] = "GROUND"
 
 
-def road_ribbon(points: list[tuple[float, float]], width: float) -> tuple[list, list]:
+def road_ribbon(points: list[tuple[float, float]], width: float, z_of=None) -> tuple[list, list]:
     verts, faces = [], []
     for i in range(len(points) - 1):
         (x0, y0), (x1, y1) = points[i], points[i + 1]
@@ -186,18 +256,23 @@ def road_ribbon(points: list[tuple[float, float]], width: float) -> tuple[list, 
             continue
         nx, ny = -dy / seg * width / 2.0, dx / seg * width / 2.0
         base = len(verts)
+        if z_of is None:
+            z0 = z1 = ROAD_Z
+        else:
+            z0 = z_of(x0 + nx, y0 + ny)
+            z1 = z_of(x1 + nx, y1 + ny)
         verts += [
-            (x0 + nx, y0 + ny, ROAD_Z),
-            (x0 - nx, y0 - ny, ROAD_Z),
-            (x1 - nx, y1 - ny, ROAD_Z),
-            (x1 + nx, y1 + ny, ROAD_Z),
+            (x0 + nx, y0 + ny, z0),
+            (x0 - nx, y0 - ny, z0),
+            (x1 - nx, y1 - ny, z1),
+            (x1 + nx, y1 + ny, z1),
         ]
         faces.append((base, base + 1, base + 2, base + 3))
     return verts, faces
 
 
 def build_roads(features: list, lat0: float, lon0: float, south: float, north: float,
-                west: float, east: float, mat) -> int:
+                west: float, east: float, mat, grid: dict | None = None) -> int:
     margin = 0.0015  # ~150 m, matches the nav graph buffer
     verts, faces = [], []
     count = 0
@@ -221,7 +296,11 @@ def build_roads(features: list, lat0: float, lon0: float, south: float, north: f
         if len(pts) < 2:
             continue
         width = ROAD_WIDTHS.get(p.get("highway") or "", 3.0)
-        v, fc = road_ribbon(pts, width)
+
+        def z_of(x, y, _lat0=lat0, _lon0=lon0, _grid=grid):
+            return terrain_z_xy(_grid, x, y, _lat0, _lon0) + ROAD_Z
+
+        v, fc = road_ribbon(pts, width, z_of)
         offset = len(verts)
         verts += v
         faces += [tuple(i + offset for i in face) for face in fc]
@@ -257,7 +336,8 @@ def main() -> None:
     ground_mat = material("MAT_ground", "#8f9d7a", roughness=1.0)
     road_mat = material("MAT_road", "#7d7d78", roughness=1.0)
 
-    build_ground(ground_mat)
+    grid = load_dem_grid()
+    build_ground(ground_mat, grid, lat0, lon0)
 
     built = 0
     for bid, row in sorted(facade.items()):
@@ -269,14 +349,21 @@ def main() -> None:
         if geom.get("type") != "Polygon":
             print(f"WARN: {bid} is not a polygon")
             continue
-        ring = ring_metres(geom["coordinates"][0], lat0, lon0)
-        build_building(bid, ring, int(row.get("floors") or 1), wall_mat, roof_mat)
+        ring_ll = geom["coordinates"][0]
+        ring = ring_metres(ring_ll, lat0, lon0)
+        # Sit the building on the local terrain (DEM), so it neither floats nor sinks.
+        pts_ll = ring_ll[:-1] if len(ring_ll) > 1 and ring_ll[0] == ring_ll[-1] else ring_ll
+        clat = sum(p[0] for p in pts_ll) / max(1, len(pts_ll))
+        clon = sum(p[1] for p in pts_ll) / max(1, len(pts_ll))
+        base_z = terrain_z(grid, clat, clon)
+        build_building(bid, ring, int(row.get("floors") or 1), wall_mat, roof_mat, base_z=base_z)
         built += 1
         ent = nearest_road_point((ring[0][0], ring[0][1], 0.0), geojson.get("features", []), lat0, lon0, south, north, west, east)
         if ent is not None:
-            add_entrance(f"ENTR_{bid[len('BLDG_'):]}", (ent[0], ent[1], ent[2]), ground_mat)
+            ent_z = terrain_z_xy(grid, ent[0], ent[1], lat0, lon0) + PLINTH_HEIGHT
+            add_entrance(f"ENTR_{bid[len('BLDG_'):]}", (ent[0], ent[1], ent_z), ground_mat)
 
-    roads = build_roads(geojson.get("features", []), lat0, lon0, south, north, west, east, road_mat)
+    roads = build_roads(geojson.get("features", []), lat0, lon0, south, north, west, east, road_mat, grid)
 
     bpy.context.view_layer.update()
     bpy.ops.wm.save_as_mainfile(filepath=os.path.join(ROOT, "build", "campus.blend"))

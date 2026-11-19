@@ -110,11 +110,11 @@ iitrpr-campus-3d/
 
 - `make blend` builds `build/campus.blend`: 54 buildings extruded from the facade sheet,
   80 road ribbons inside the boundary buffer. Saved OK.
-- `make assets` exports `public/models/campus.glb` (now 421,980 bytes, 110 objects incl. 54
-  `ENTR_` entrance markers + 4,222 triangles, 4 materials, 0 textures) and regenerates
-  `public/data/nav.json` (626 nodes incl. 54 `ENTR_*` entrances, 666 links) + `public/data/scatter.json`
-  (250 trees) via `scripts/build_nav.py`.
-- `make check`: CHECK_OK — size 0.42 MB, triangles 4,222, materials 4, textures 0, buildings 54;
+- `make assets` exports `public/models/campus.glb` (now 521,184 bytes, 110 objects incl. 54
+  `ENTR_` entrance markers + 7,420 triangles — terrain ground grid included, 4 materials,
+  0 textures) and regenerates `public/data/nav.json` (626 nodes incl. 54 `ENTR_*` entrances,
+  666 links) + `public/data/scatter.json` (250 trees) via `scripts/build_nav.py`.
+- `make check`: CHECK_OK — size 0.52 MB, triangles 7,420, materials 4, textures 0, buildings 54;
   GLB BLDG buildings ↔ campus.json OK; GLB `ENTR_*` ↔ nav `ENTR_*` OK; scatter non-empty.
 - `make preview`: 3 renders into `build/preview/{main,aerial,close}.png` (EEVEE Next headless OK).
   Image stats (PIL) show real content (std 12–16, ~800–1100 colours) after fixing the camera
@@ -170,9 +170,27 @@ iitrpr-campus-3d/
   size 0.42 MB. `make check` CHECK_OK.
 - Ground-shadow baking intentionally NOT done (separate deferred item; runtime sun shadows cover it).
 
+### Phase 4b — Item 6: DEM (done)
+
+- Copernicus GLO-30 found on AWS Open Data (no login): bucket `copernicus-dem-30m`
+  (registry.opendata.aws/copernicus-dem), COG tiles named
+  `Copernicus_DSM_COG_10_<band>/<file>.tif` (10 arcsec = 30 m, 1° tiles).
+- Campus tile `Copernicus_DSM_COG_10_N30_00_E076_00_DEM` downloaded (39.75 MB) and cropped to
+  the campus bbox → `data-src/dem.tif` (78×47 px, EPSG:4326, **261.7–273.8 m**, mean 263.8 m —
+  consistent with the Sutlej plain). `data-src/*.tif` stays gitignored; `make dem` regenerates.
+- New `scripts/dem_grid.py` converts the GeoTIFF to `build/dem_grid.json` (Blender's Python has
+  no rasterio); `make blend` runs it via the new `dem-grid` target (failure ignored → flat ground).
+- `blender/scripts/import_osm.py`: `load_dem_grid`/`dem_sample` (bilinear, edge-clamped) +
+  `terrain_z`; ground is now a 40×40 subdivided grid following the DEM inside the bbox (flat
+  outside), buildings sit on the local terrain (`base_z`), roads and `ENTR_` markers are
+  terrain-offset too. `bake.py` AO gradient now uses the mesh z-range (buildings have base_z).
+- Budgets kept: GLB 7,420 tris, 0.52 MB, 4 materials, 0 textures. `make check` CHECK_OK,
+  `make verify` ALL GREEN, `make e2e` 12/12.
+
 ## Risks
 
-- DEM download (no auth-free source yet; fallback: flat ground behind a Makefile flag).
+- ~~DEM download (no auth-free source yet; fallback: flat ground behind a Makefile flag).~~
+  Resolved (item 6): Copernicus GLO-30 on AWS Open Data, no auth needed.
 - OSM coverage gaps for IIT Ropar (missing buildings / wrongly placed roads).
 - License compliance (ODbL attribution, no scraped satellite imagery).
 - Performance budget on phones (150k triangles in view, 5 MB model, ≤2 textures; baked shadows

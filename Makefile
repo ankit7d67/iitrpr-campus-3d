@@ -18,7 +18,7 @@ DEM := $(SRC)/dem.tif
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all dev phone osm audit dem blend assets check test e2e build preview verify clean
+.PHONY: help all dev phone osm audit dem dem-grid blend assets check test e2e build preview verify clean
 
 help:
 	@echo "Targets: dev, phone, osm, audit, dem, blend, assets, check, test, e2e, build, preview, verify, clean"
@@ -41,8 +41,14 @@ audit: scripts/osm_audit.py
 
 dem: $(SRC)/scripts/fetch_dem.py
 	$(PYTHON) $(SRC)/scripts/fetch_dem.py --out $(DEM) $(if $(FLAT),--flat)
+	$(PYTHON) scripts/dem_grid.py
 
-blend: $(BL_DIR)/scripts/import_osm.py
+# build/dem_grid.json is regenerated when data-src/dem.tif exists; import_osm.py falls
+# back to a flat ground if it is missing (so CI/verify never needs the DEM).
+dem-grid:
+	-$(PYTHON) scripts/dem_grid.py
+
+blend: $(BL_DIR)/scripts/import_osm.py dem-grid
 	$(PYTHON) -c "import os; os.makedirs('build', exist_ok=True)"
 	"$(BLENDER_BIN)" -b -P $(BL_DIR)/scripts/import_osm.py
 
