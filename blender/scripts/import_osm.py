@@ -47,33 +47,6 @@ def material(name: str, colour: str, roughness: float = 0.9) -> bpy.types.Materi
     return mat
 
 
-def add_window_mask(mat: bpy.types.Material, wall_colour: tuple[float, float, float, float], window_colour: tuple[float, float, float, float], window_scale: float = 2.0) -> None:
-    """Cheap procedural window rows on the wall material: Wave texture bands masked through a
-    colour ramp. No extra geometry, no textures, no new material."""
-    nt = mat.node_tree
-    nt.nodes.clear()
-    out = nt.nodes.new("ShaderNodeOutputMaterial")
-    bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
-    bsdf.inputs["Roughness"].default_value = 0.9
-    tex = nt.nodes.new("ShaderNodeTexCoord")
-    mapping = nt.nodes.new("ShaderNodeMapping")
-    mapping.inputs["Scale"].default_value = (window_scale, window_scale, window_scale)
-    wave = nt.nodes.new("ShaderNodeTexWave")
-    wave.wave_type = "BANDS"
-    wave.bands_direction = "X"
-    ramp = nt.nodes.new("ShaderNodeValToRGB")
-    ramp.color_ramp.elements[0].position = 0.45
-    ramp.color_ramp.elements[0].color = wall_colour
-    ramp.color_ramp.elements[1].position = 0.55
-    ramp.color_ramp.elements[1].color = window_colour
-    nt.links.new(tex.outputs["Generated"], mapping.inputs["Vector"])
-    nt.links.new(mapping.outputs["Vector"], wave.inputs["Vector"])
-    nt.links.new(wave.outputs["Color"], ramp.inputs["Fac"])
-    nt.links.new(ramp.outputs["Color"], bsdf.inputs["Base Color"])
-    nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
-    return
-
-
 def local_scale(lat: float) -> tuple[float, float]:
     """Metres per degree (lat, lon) at the given latitude."""
     phi = math.radians(lat)
@@ -280,11 +253,6 @@ def main() -> None:
             by_way[str(props.get("osm_id"))] = feature
 
     wall_mat = material("MAT_wall", "#c9c2b4")
-    add_window_mask(
-        wall_mat,
-        (srgb_to_linear(0.79), srgb_to_linear(0.76), srgb_to_linear(0.71), 1.0),
-        (srgb_to_linear(0.83), srgb_to_linear(0.87), srgb_to_linear(0.92), 1.0),
-    )
     roof_mat = material("MAT_roof", "#8a8578")
     ground_mat = material("MAT_ground", "#8f9d7a", roughness=1.0)
     road_mat = material("MAT_road", "#7d7d78", roughness=1.0)

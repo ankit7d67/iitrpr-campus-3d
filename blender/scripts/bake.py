@@ -4,8 +4,9 @@ Run:  blender -b build/campus.blend -P blender/scripts/bake.py
 
 No textures and no lightmaps are baked: the campus.glb stays a low-poly mesh with four
 materials, and lighting/shadows are computed at runtime by React Three Fiber (the app's
-SunPanel changes the sun direction, so a baked shadow map would be wrong). Vertex-colour
-AO, if added later, must keep the GLB under the material/texture budgets.
+SunPanel changes the sun direction, so a baked shadow map would be wrong). Ambient occlusion
+is baked into per-vertex BYTE_COLOR attributes on the BLDG meshes (not into the sun/shadow
+path), so it stays valid with the runtime sun.
 """
 
 import os
@@ -20,9 +21,9 @@ def srgb_to_linear(c: float) -> float:
     return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
 
 
-def add_window_mask(mat, wall_colour, window_colour, window_scale: float = 2.0) -> None:
-    """Cheap procedural window rows via Wave texture bands + colour ramp. No extra geometry,
-    no textures, no new material."""
+def build_wall_material(mat, wall_colour, window_colour, window_scale: float = 2.0) -> None:
+    """Procedural window rows via Wave texture bands + MixRGB, then AO (per-vertex BYTE_COLOR
+    attribute "AO") multiplied in. No extra geometry, no textures, no new material."""
     nt = mat.node_tree
     nt.nodes.clear()
     out = nt.nodes.new("ShaderNodeOutputMaterial")
@@ -33,29 +34,58 @@ def add_window_mask(mat, wall_colour, window_colour, window_scale: float = 2.0) 
     mapping.inputs["Scale"].default_value = (window_scale, window_scale, window_scale)
     wave = nt.nodes.new("ShaderNodeTexWave")
     wave.wave_type = "BANDS"
-    wave.bands_direction = "X"
-    ramp = nt.nodes.new("ShaderNodeValToRGB")
-    ramp.color_ramp.elements[0].position = 0.45
-    ramp.color_ramp.elements[0].color = wall_colour
-    ramp.color_ramp.elements[1].position = 0.55
-    ramp.color_ramp.elements[1].color = window_colour
+    mix = nt.nodes.new("ShaderNodeMixRGB")
+    mix.blend_type = "MIX"
+    mix.inputs["Fac"].default_value = 0.0
+    mix.inputs["Color1"].default_value = wall_colour
+    mix.inputs["Color2"].default_value = window_colour
+    mix2 = nt.nodes.new("ShaderNodeMixRGB")
+    mix2.blend_type = "MULTIPLY"
+    mix2.inputs["Fac"].default_value = 1.0
+    mix2.inputs["Color2"].default_value = (1.0, 1.0, 1.0, 1.0)
+    attr = nt.nodes.new("ShaderNodeAttribute")
+    attr.attribute_name = "AO"
     nt.links.new(tex.outputs["Generated"], mapping.inputs["Vector"])
     nt.links.new(mapping.outputs["Vector"], wave.inputs["Vector"])
-    nt.links.new(wave.outputs["Color"], ramp.inputs["Fac"])
-    nt.links.new(ramp.outputs["Color"], bsdf.inputs["Base Color"])
+    nt.links.new(wave.outputs["Color"], mix.inputs["Fac"])
+    nt.links.new(mix.outputs["Color"], mix2.inputs["Color1"])
+    nt.links.new(attr.outputs["Color"], mix2.inputs["Color2"])
+    nt.links.new(mix2.outputs["Color"], bsdf.inputs["Base Color"])
     nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
-    return
+
+
+def bake_ao(objects) -> None:
+    """Bake ambient occlusion into per-vertex BYTE_COLOR attributes on the BLDG meshes.
+    Vertical AO gradient: ~0.55 at the plinth base rising to ~1.0 at the roof top."""
+    baked = 0
+    for o in objects:
+        if not o.name.startswith("BLDG_"):
+            continue
+        mesh = o.data
+        if mesh is None or not mesh.vertices:
+            continue
+        height = max((v.co.z for v in mesh.vertices), default=0.0)
+        if height <= 0.0:
+            continue
+        attr = mesh.color_attributes.new(name="AO", type="BYTE_COLOR", domain="POINT")
+        for i, v in enumerate(mesh.vertices):
+            t = (v.co.z / height) if height else 0.0
+            ao = min(1.0, max(0.0, 0.55 + 0.45 * t))
+            attr.data[i].color = (ao, ao, ao, 1.0)
+        baked += 1
+    print(f"AO_OK baked_meshes={baked}")
 
 
 def export_glb() -> None:
     os.makedirs(os.path.dirname(MODEL), exist_ok=True)
     wall = bpy.data.materials.get("MAT_wall")
     if wall is not None:
-        add_window_mask(
+        build_wall_material(
             wall,
             (srgb_to_linear(0.79), srgb_to_linear(0.76), srgb_to_linear(0.71), 1.0),
             (srgb_to_linear(0.83), srgb_to_linear(0.87), srgb_to_linear(0.92), 1.0),
         )
+    bake_ao([o for o in bpy.context.scene.objects if o.type == "MESH"])
     bpy.ops.export_scene.gltf(
         filepath=MODEL,
         export_format="GLB",

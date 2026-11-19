@@ -110,11 +110,12 @@ iitrpr-campus-3d/
 
 - `make blend` builds `build/campus.blend`: 54 buildings extruded from the facade sheet,
   80 road ribbons inside the boundary buffer. Saved OK.
-- `make assets` exports `public/models/campus.glb` (255,092 bytes, 56 meshes, 3,790 triangles,
-  4 materials, 0 textures) and regenerates `public/data/nav.json` (626 nodes incl. 54 BLDG_*,
-  666 links) + `public/data/scatter.json` (250 trees) via `scripts/build_nav.py`.
-- `make check`: CHECK_OK — size 0.26 MB, triangles 3,790, materials 4, textures 0, buildings 54;
-  GLB/campus.json/nav.json ID parity OK; scatter non-empty.
+- `make assets` exports `public/models/campus.glb` (now 421,980 bytes, 110 objects incl. 54
+  `ENTR_` entrance markers + 4,222 triangles, 4 materials, 0 textures) and regenerates
+  `public/data/nav.json` (626 nodes incl. 54 `ENTR_*` entrances, 666 links) + `public/data/scatter.json`
+  (250 trees) via `scripts/build_nav.py`.
+- `make check`: CHECK_OK — size 0.42 MB, triangles 4,222, materials 4, textures 0, buildings 54;
+  GLB BLDG buildings ↔ campus.json OK; GLB `ENTR_*` ↔ nav `ENTR_*` OK; scatter non-empty.
 - `make preview`: 3 renders into `build/preview/{main,aerial,close}.png` (EEVEE Next headless OK).
   Image stats (PIL) show real content (std 12–16, ~800–1100 colours) after fixing the camera
   clip plane. Visual inspection still pending (no vision-capable model attached).
@@ -158,7 +159,16 @@ iitrpr-campus-3d/
 - `src/components/RouteRenderer.tsx`: deep-link route endpoints (BLDG_*) are mapped to ENTR_*.
 - `make verify` ALL GREEN; `make e2e` 12/12 passed.
 
-### Phase 4b — Item 5: baked AO (next)
+### Phase 4b — Item 5: baked AO (done)
+
+- `blender/scripts/bake.py`: `bake_ao()` writes a per-vertex `BYTE_COLOR` attribute named
+  `AO` onto every `BLDG_` mesh (vertical AO gradient: ~0.55 at plinth base → ~1.0 at roof top).
+  `build_wall_material()` now wires window rows (Wave bands + MixRGB) multiplied by the `AO`
+  attribute (Attribute node → MixRGB MULTIPLY → Principled Base Color).
+- Validated via headless Blender probe: BYTE_COLOR write + node chain both OK on 4.2.16.
+- GLB re-export: `COLOR_0`/`COLOR_1` attributes present; materials 4, textures 0, tris 4,222,
+  size 0.42 MB. `make check` CHECK_OK.
+- Ground-shadow baking intentionally NOT done (separate deferred item; runtime sun shadows cover it).
 
 ## Risks
 
