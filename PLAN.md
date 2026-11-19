@@ -333,6 +333,41 @@ ships with empty data; analytics included once a GoatCounter account exists.
   **16/16** — new test "drawer collapses and reopens with controls" runs on
   chromium + pixel7; fresh `ui-desktop.png` / `ui-phone.png` captured.
 
+### 7-5 — Route planner + turn-by-turn directions (done, 3 latent bugs fixed)
+
+- New `src/lib/route.ts`: `planRoute()` (single source of truth for panel +
+  renderer: BLDG→ENTR id mapping, A*, `buildSteps`) and `formatDistance()`.
+- `RoutePanel` now plans routes from the UI: From/To `<select>` pickers over the
+  building list + Route button, then endpoint names, total distance, step count
+  and a scrollable turn-by-turn list; Clear returns to the pickers. Pickers stay
+  in sync with deep-link/search-set routes.
+- **Bug 1 — A* was directed.** `nav.json` stores each walking edge once, but the
+  network is one undirected component (626 nodes); following `from→to` only left
+  70 directed components, so most pairs (incl. the e2e deep-link pair) found no
+  path and the route line never rendered. Fixed by expanding every link in both
+  directions in `astar.ts`.
+- **Bug 2 — `<Line>` rendered outside the Canvas.** `RouteRenderer` sat next to
+  `<CampusScene />` in `page.tsx`, so drei's `Line` ran without R3F context and
+  crashed the app ("Hooks can only be used within the Canvas") the moment a route
+  had a path — masked until bug 1 was fixed. Moved inside the Canvas in
+  `CampusScene.tsx`.
+- **Bug 3 — direction text broken.** `compass()` indexed `dirs[-1]` for negative
+  degrees ("undefined"), bearings used `atan2(dx, dz)` with z = −north (N/S
+  flipped; verified via corr(lon,x)=+1.0, corr(lat,z)=−1.0), and turns were
+  announced on the wrong leg. Rewrote `directions.ts`: negative-safe compass,
+  `atan2(dx, −dz)` headings, turns attributed to the leg started after turning
+  ("Turn right toward east"), left/right from the signed turn angle.
+- QA: `make verify` **ALL GREEN** — unit tests 28 → **34** (route.test 6 incl.
+  real-nav.json regressions both directions, astar bidirectional, directions
+  cardinal/left-right/no-"undefined"), e2e **18/18** (new "route planner plans a
+  route from the pickers" on chromium + pixel7), numeric QA ROAD_QA/PAD_QA/
+  DEM_GRID all PASS (model unchanged: 33,724 tris / 1.63 MB / 4 mats). Fresh
+  `ui-desktop.png` / `ui-phone.png`.
+- Build note: the transient `[Invariant: no direct app page entry found for
+  /_not-found]` was traced to orphaned node processes + a stale `.next` (likely
+  a leftover `next dev` sharing the build dir); killing node and removing
+  `.next` cleared it — do that first if it recurs.
+
 ## Fixes
 
 - **(a)** Pad faces + retaining walls → `MAT_ground` via 3rd BLDG material slot (commit `08947bd`): 218 primitives, 4 materials, tris unchanged 26,654. verify + e2e 14/14.

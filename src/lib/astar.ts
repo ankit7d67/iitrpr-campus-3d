@@ -19,10 +19,17 @@ export function astar(graph: NavGraph, startId: string, goalId: string): RouteRe
   const nodes = new Map<string, NavNode>();
   for (const n of graph.nodes) nodes.set(n.id, n);
   const linksByFrom = new Map<string, NavLink[]>();
-  for (const l of graph.links) {
+  const push = (l: NavLink) => {
     const arr = linksByFrom.get(l.from) ?? [];
     arr.push(l);
     linksByFrom.set(l.from, arr);
+  };
+  for (const l of graph.links) {
+    // Walking links are bidirectional: nav.json stores each edge once, so expand
+    // it in both directions (otherwise most origin/destination pairs are
+    // unreachable and no route renders).
+    push(l);
+    push({ from: l.to, to: l.from, length: l.length });
   }
   if (!nodes.has(startId) || !nodes.has(goalId)) return null;
 

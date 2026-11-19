@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { loadScatter } from '../lib/data';
 import { useCampusStore } from '../lib/store';
 import type { ScatterEntry } from '../lib/types';
+import { RouteRenderer } from './RouteRenderer';
 
 const CAMPUS_GLB = '/models/campus.glb';
 
@@ -69,6 +70,7 @@ export function CampusScene() {
   const quality = useCampusStore((s) => s.quality);
   const glbEnabled = quality !== 'low';
   const night = useCampusStore((s) => s.night);
+  const route = useCampusStore((s) => s.route);
   const [scatter, setScatter] = useState<ScatterEntry[]>([]);
   const gltfRef = useRef<THREE.Group>(null);
 
@@ -115,6 +117,8 @@ export function CampusScene() {
         {glbEnabled ? <Gltf src={CAMPUS_GLB} ref={attachGltf} /> : null}
       </Suspense>
       <Trees scatter={scatter} />
+      {/* Route line must render inside the Canvas (drei <Line> needs R3F context) */}
+      {route && <RouteRenderer fromId={route.fromId} toId={route.toId} />}
       <ContactShadows position={[0, 0.1, 0]} opacity={0.35} scale={2500} blur={2.5} far={60} />
       <OrbitControls enablePan enableDamping makeDefault target={[0, 0, 0]} maxDistance={8000} />
     </Canvas>

@@ -27,6 +27,19 @@ test('deep link ?from=&to= sets route', async ({ page }) => {
   await expect(page.getByText(/Ravi Girls Hostel/i)).toBeVisible();
 });
 
+test('route planner plans a route from the pickers', async ({ page }) => {
+  await page.goto('/');
+  const panel = page.locator('.panel').filter({ hasText: 'Walking route' });
+  await expect(panel).toBeVisible();
+  await panel.locator('select').nth(0).selectOption({ label: 'Nalanda library' });
+  await panel.locator('select').nth(1).selectOption({ label: 'Ravi Girls Hostel' });
+  await panel.getByRole('button', { name: 'Route', exact: true }).click();
+  await expect(panel).toContainText(/Nalanda library → Ravi Girls Hostel/i);
+  await expect(panel.locator('.route-steps li').first()).toBeVisible();
+  await panel.getByRole('button', { name: 'Clear' }).click();
+  await expect(panel.getByRole('button', { name: 'Route', exact: true })).toBeVisible();
+});
+
 test('search finds a building and opens the info panel', async ({ page }) => {
   await page.goto('/');
   const input = page.getByPlaceholder('Search buildings, hostels, departments');

@@ -290,6 +290,47 @@ button {
   padding: 0;
 }
 
+/* Route planner (7-5) */
+.route-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.route-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.route-form select {
+  font: inherit;
+  padding: 6px 8px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+}
+
+.route-steps {
+  margin: 4px 0;
+  padding-left: 18px;
+  max-height: 180px;
+  overflow-y: auto;
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.route-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
 /* Perf */
 .perf-overlay {
   position: absolute;

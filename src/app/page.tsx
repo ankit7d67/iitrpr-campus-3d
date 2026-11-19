@@ -6,7 +6,6 @@ import { CampusScene } from '../components/CampusScene';
 import { BuildingPanel } from '../components/BuildingPanel';
 import { SearchPanel } from '../components/SearchPanel';
 import { RoutePanel } from '../components/RoutePanel';
-import { RouteRenderer } from '../components/RouteRenderer';
 import { TourPanel } from '../components/TourPanel';
 import { SunPanel } from '../components/SunPanel';
 import { PerfOverlay } from '../components/PerfOverlay';
@@ -38,15 +37,10 @@ function DeepLinks() {
 }
 
 function Home() {
-  const route = useCampusStore((s) => s.route);
-  const routeFromId = route?.fromId;
-  const routeToId = route?.toId;
-
   return (
     <div className="app">
       <div className="viewport">
         <CampusScene />
-        {routeFromId && routeToId && <RouteRenderer fromId={routeFromId} toId={routeToId} />}
         <div className="top-right">
           <SunPanel />
         </div>

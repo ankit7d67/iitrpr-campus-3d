@@ -26,6 +26,16 @@ describe('astar', () => {
     expect(r!.distanceM).toBeGreaterThan(0);
   });
 
+  it('traverses stored links in reverse (walking links are bidirectional)', () => {
+    const g = makeGraph([
+      ['a', 'b', 10],
+      ['b', 'c', 10],
+    ], { a: [0, 0], b: [0, 10], c: [0, 20] });
+    const r = astar(g, 'c', 'a');
+    expect(r).not.toBeNull();
+    expect(r!.path.map((n) => n.id)).toEqual(['c', 'b', 'a']);
+  });
+
   it('returns null for unknown nodes', () => {
     const g = makeGraph([]);
     expect(astar(g, 'nope', 'nada')).toBeNull();
