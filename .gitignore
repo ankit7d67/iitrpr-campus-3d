@@ -8,9 +8,6 @@ data-src/*.json
 !data-src/campus_bbox.json
 !data-src/extra_footprints.geojson
 !data-src/imagery/
-public/models/campus.glb
-public/data/nav.json
-public/data/scatter.json
 __pycache__/
 *.pyc
 playwright-report/
