@@ -148,6 +148,18 @@ iitrpr-campus-3d/
   `src/components/CampusScene.tsx` (`applyNight` via GLTF group ref setting Principled emission).
 - Budgets kept: GLB materials 4, textures 0, triangles 3,790, buildings 54.
 
+### Phase 4b — Item 4: ENTR_ entrances (done)
+
+- `blender/scripts/import_osm.py`: per building creates `ENTR_<osm_id>` octahedron entrance
+  marker at the nearest road/footpath point (outward offset).
+- GLB grew to 110 objects / 4,222 triangles / 4 materials / 0 textures (0.30 MB).
+- `scripts/build_nav.py`: nav building nodes renamed to `ENTR_<osm_id>` (entrance nodes).
+- `scripts/check_budget.py`: parity now checks GLB BLDG buildings ↔ campus.json, and GLB ENTR ↔ nav ENTR.
+- `src/components/RouteRenderer.tsx`: deep-link route endpoints (BLDG_*) are mapped to ENTR_*.
+- `make verify` ALL GREEN; `make e2e` 12/12 passed.
+
+### Phase 4b — Item 5: baked AO (next)
+
 ## Risks
 
 - DEM download (no auth-free source yet; fallback: flat ground behind a Makefile flag).
