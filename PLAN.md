@@ -525,6 +525,25 @@ ships with empty data; analytics included once a GoatCounter account exists.
   `make e2e` **28/28** on chromium + pixel7 (was 26/26). CHECK_OK unchanged:
   33,724 tris / 1.82 MB / 4 materials / 2 textures.
 
+### 7-12 — Adaptive quality (done)
+
+- `Quality`'s **Auto** mode was previously inert (it behaved like high-DPR-less
+  high). Added a pure `src/lib/quality.ts` decision function driven by the 0.5 s
+  FPS samples that `PerfOverlay` already publishes: three consecutive windows
+  below 30 FPS drop to `low`, six above 55 FPS climb back to `high`, with a
+  12 s cooldown and streak resets so borderline machines do not thrash the GLB
+  mount state. Non-finite samples are ignored.
+- Store gains `autoTier` (`high` initially), and `CampusScene` uses
+  `effectiveQuality = quality === 'auto' ? autoTier : quality` for GLB presence,
+  DPR, antialias and shadows. Explicit Low/High still override Auto immediately.
+- `QualityControl` shows the effective tier (`Auto · high`, `low`, `high`) so the
+  adaptation is observable; `data-testid="quality-effective"` for e2e.
+- New `tests/quality.test.ts` (5 cases: healthy FPS, 3-window drop, streak
+  reset, 6-window recovery + cooldown, NaN) and a new e2e case that switches all
+  three modes.
+- QA: `make verify` **ALL GREEN** (44 unit tests, was 39), `make e2e` **30/30**
+  (was 28/28). CHECK_OK unchanged: 33,724 tris / 1.82 MB / 4 mats / 2 tex.
+
 ## Fixes
 
 - **(a)** Pad faces + retaining walls → `MAT_ground` via 3rd BLDG material slot (commit `08947bd`): 218 primitives, 4 materials, tris unchanged 26,654. verify + e2e 14/14.

@@ -197,6 +197,12 @@ button {
   font: inherit;
 }
 
+.quality-effective {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
 /* Sun */
 .sun-panel {
   background: var(--panel-bg);

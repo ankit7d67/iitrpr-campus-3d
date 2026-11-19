@@ -90,6 +90,21 @@ test('loading screen shows progress while the model loads, then disappears', asy
   await expect(loader).toBeHidden({ timeout: 15000 });
 });
 
+test('quality selector reports the effective tier and switches modes', async ({ page }) => {
+  await page.goto('/');
+  const select = page.locator('#quality');
+  const effective = page.getByTestId('quality-effective');
+  await expect(select).toHaveValue('auto');
+  await expect(effective).toContainText('high');
+  await select.selectOption('low');
+  await expect(effective).toHaveText('low');
+  await expect(page.locator('canvas').first()).toBeVisible();
+  await select.selectOption('high');
+  await expect(effective).toHaveText('high');
+  await select.selectOption('auto');
+  await expect(effective).toContainText('Auto · high');
+});
+
 test('building labels are visible and clicking one zooms into it', async ({ page }) => {
   await page.goto('/');
   const label = page.locator('[data-testid="map-label"]').filter({ hasText: 'Nalanda library' }).first();

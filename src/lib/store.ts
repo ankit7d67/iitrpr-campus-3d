@@ -9,6 +9,8 @@ export interface RouteSelection {
 
 export interface CampusState {
   quality: Quality;
+  /** Effective tier chosen by Auto mode from the measured FPS (7-12). */
+  autoTier: 'low' | 'high';
   selectedBuildingId: string | null;
   searchQuery: string;
   route: RouteSelection | null;
@@ -28,6 +30,7 @@ export interface CampusState {
   modelReady: boolean;
   dataError: string | null;
   setQuality: (quality: Quality) => void;
+  setAutoTier: (autoTier: 'low' | 'high') => void;
   setSelectedBuildingId: (selectedBuildingId: string | null) => void;
   setSearchQuery: (searchQuery: string) => void;
   setRoute: (route: RouteSelection | null) => void;
@@ -47,6 +50,7 @@ export interface CampusState {
 
 export const useCampusStore = create<CampusState>()((set) => ({
   quality: 'auto',
+  autoTier: 'high',
   selectedBuildingId: null,
   searchQuery: '',
   route: null,
@@ -62,6 +66,7 @@ export const useCampusStore = create<CampusState>()((set) => ({
   modelReady: false,
   dataError: null,
   setQuality: (quality) => set({ quality }),
+  setAutoTier: (autoTier) => set({ autoTier }),
   setSelectedBuildingId: (selectedBuildingId) => set({ selectedBuildingId }),
   setSearchQuery: (searchQuery) => set({ searchQuery }),
   setRoute: (route) => set({ route }),

@@ -77,7 +77,10 @@ function Trees({ scatter }: { scatter: ScatterEntry[] }) {
 
 export function CampusScene() {
   const quality = useCampusStore((s) => s.quality);
-  const glbEnabled = quality !== 'low';
+  const autoTier = useCampusStore((s) => s.autoTier);
+  // 7-12: Auto follows the FPS-driven tier; explicit choices override it.
+  const effectiveQuality = quality === 'auto' ? autoTier : quality;
+  const glbEnabled = effectiveQuality !== 'low';
   const night = useCampusStore((s) => s.night);
   const sunUtcMs = useCampusStore((s) => s.sunUtcMs);
   const route = useCampusStore((s) => s.route);
@@ -169,7 +172,7 @@ export function CampusScene() {
 
   return (
     <Canvas
-      dpr={quality === 'high' ? [1, 2] : [1, 1]}
+      dpr={effectiveQuality === 'high' ? [1, 2] : [1, 1]}
       camera={{ position: [1150, 1500, 1750], fov: 50, near: 1, far: 20000 }}
       gl={{ antialias: glbEnabled, alpha: true }}
       shadows={glbEnabled}
