@@ -1,4 +1,4 @@
-#IIT Ropar Campus 3D
+IIT Ropar Campus 3D
 
 An interactive, low-poly 3D map of the IIT Ropar main campus in Rupnagar, Punjab. Search for a building, plan a walking route, take an orientation tour, and change the time of day to watch the sun move and the windows light up at night.
 
