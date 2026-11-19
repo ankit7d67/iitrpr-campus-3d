@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, ContactShadows, Gltf } from '@react-three/drei';
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { loadScatter } from '../lib/data';
 import { useCampusStore } from '../lib/store';
@@ -88,6 +88,19 @@ export function CampusScene() {
     applyNight(gltfRef.current, night);
   }, [night]);
 
+  // Attach the loaded model: hide the ENTR_* entrance markers (they are visual
+  // anchors for nav.json, which routing uses by id — the meshes are not needed)
+  // and apply the current night state (the [night] effect may have run while
+  // Suspense still held the model).
+  const attachGltf = useCallback((group: THREE.Group | null) => {
+    gltfRef.current = group;
+    if (!group) return;
+    group.traverse((obj) => {
+      if (obj.name.startsWith('ENTR_')) obj.visible = false;
+    });
+    applyNight(group, useCampusStore.getState().night);
+  }, []);
+
   return (
     <Canvas
       dpr={quality === 'high' ? [1, 2] : [1, 1]}
@@ -99,7 +112,7 @@ export function CampusScene() {
       <directionalLight position={[300, 500, 200]} intensity={1.6} castShadow={glbEnabled} shadow-mapSize={[2048, 2048]} color="#fff4e0" />
       <directionalLight position={[-300, 200, -250]} intensity={0.35} />
       <Suspense fallback={null}>
-        {glbEnabled ? <Gltf src={CAMPUS_GLB} ref={gltfRef} /> : null}
+        {glbEnabled ? <Gltf src={CAMPUS_GLB} ref={attachGltf} /> : null}
       </Suspense>
       <Trees scatter={scatter} />
       <ContactShadows position={[0, 0.1, 0]} opacity={0.35} scale={2500} blur={2.5} far={60} />
