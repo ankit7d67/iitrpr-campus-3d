@@ -42,6 +42,7 @@ make verify     # full check: budget + tests + build ; ends with "ALL GREEN"
 
 ```
 OpenStreetMap (Nominatim + Overpass)  ->  data-src/*.geojson, data-src/campus_bbox.json
++ hand overlay data-src/campus_extra.json  ->  building overrides, tours, landmarks
 Blender 4.2 headless (import_osm.py + bake.py)  ->  public/models/campus.glb (Meshopt + WebP)
         ->  public/data/nav.json, scatter.json, public/data/campus.json
 Next.js static export (React Three Fiber)  ->  GitHub Pages

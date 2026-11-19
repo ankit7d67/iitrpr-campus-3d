@@ -18,7 +18,8 @@
       "osm_way": 1032552691,
       "name": "Lecture Hall",
       "aliases": [
-        "Lecture Hall"
+        "Lecture Hall",
+        "M2 Lecture Hall"
       ],
       "category": "academic",
       "floors": 3,
@@ -1200,6 +1201,82 @@
       },
       "rooms": [],
       "hours": ""
+    }
+  ],
+  "tours": [
+    {
+      "id": "orientation",
+      "title": "Orientation tour",
+      "stops": [
+        {
+          "bid": "BLDG_1032552691",
+          "note": "Lecture halls \u00e2\u20ac\u201d where your first classes run."
+        },
+        {
+          "bid": "BLDG_1270609407",
+          "note": "Super Academic Building \u00e2\u20ac\u201d main teaching block."
+        },
+        {
+          "bid": "BLDG_1349163385",
+          "note": "Nalanda Library \u00e2\u20ac\u201d central library and study spaces."
+        },
+        {
+          "bid": "BLDG_1349164575",
+          "note": "J.C. Bose Building \u00e2\u20ac\u201d laboratories and offices."
+        },
+        {
+          "bid": "BLDG_1349164577",
+          "note": "S Ramanujan Building \u00e2\u20ac\u201d departments and classrooms."
+        },
+        {
+          "bid": "BLDG_1349204071",
+          "note": "Mess & Cafeteria \u00e2\u20ac\u201d dining on campus."
+        },
+        {
+          "bid": "BLDG_1349165963",
+          "note": "Satluj Boys hostel."
+        },
+        {
+          "bid": "BLDG_1349204070",
+          "note": "Ravi Girls Hostel."
+        },
+        {
+          "bid": "BLDG_1349753249",
+          "note": "Guest house \u00e2\u20ac\u201d for visiting family."
+        }
+      ]
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "library",
+      "name": "Library",
+      "bid": "BLDG_1349163385"
+    },
+    {
+      "id": "lecture-hall",
+      "name": "Lecture Hall",
+      "bid": "BLDG_1032552691"
+    },
+    {
+      "id": "mess",
+      "name": "Mess",
+      "bid": "BLDG_1349204071"
+    },
+    {
+      "id": "boys-hostel",
+      "name": "Boys Hostel",
+      "bid": "BLDG_1349165963"
+    },
+    {
+      "id": "girls-hostel",
+      "name": "Girls Hostel",
+      "bid": "BLDG_1349204070"
+    },
+    {
+      "id": "guest-house",
+      "name": "Guest House",
+      "bid": "BLDG_1349753249"
     }
   ]
 }

@@ -1,5 +1,5 @@
 id,osm_way,name,category,floors,roof_type,wall_color,trim_color,roof_color,window_pattern,move_m,style,pad_group,verified
-BLDG_1032552691,1032552691,M2 Lecture Hall,academic,3,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
+BLDG_1032552691,1032552691,Lecture Hall,academic,3,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
 BLDG_1032552708,1032552708,Building_1032552708,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
 BLDG_1032552709,1032552709,Building_1032552709,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false
 BLDG_1032552710,1032552710,Building_1032552710,other,1,flat,#c9c2b4,#4a4a4a,#8a8578,grid,,,,false

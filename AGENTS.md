@@ -7,7 +7,7 @@
 - Every guessed value (floors, colours, heights, roof types) must have verified=false and be listed in README under "Values to verify" and in TODO_VERIFY.md.
 - Respect source licences and terms of service. Do not scrape imagery or data from sources that forbid it.
 - Keep OpenStreetMap attribution and the reference-project credit in NOTICE.
-- Budgets enforced by `make check`: <=150,000 triangles in view, <=5 MB model, <=4 materials, <=2 textures, and IDs identical across the GLB, campus.json and nav.json.
+- Budgets enforced by `make check`: <=150,000 triangles in view, <=5 MB model, <=4 materials, <=2 textures, IDs identical across the GLB, campus.json and nav.json, and tours/landmarks referencing only real campus buildings.
 - Work in phases. After each phase: run its checks, fix failures, git commit with a clear message, update PLAN.md, print a 5-line status. Do not start the next phase until its checks pass.
 - Prefer small working increments. If a step fails, diagnose and retry before asking me.
 
@@ -19,7 +19,7 @@
 - `make dem` — download + convert the campus DEM into data-src/dem.tif
 - `make blend` — run the headless Blender build script
 - `make assets` — bake/export campus.glb, nav.json, scatter.json
-- `make check` — run all budget + consistency checks (<=150k tris in view, <=5 MB GLB, <=4 materials, <=2 textures, GLB/campus.json/nav.json ID parity)
+- `make check` — run all budget + consistency checks (<=150k tris in view, <=5 MB GLB, <=4 materials, <=2 textures, GLB/campus.json/nav.json ID parity, tour/landmark id + reference checks)
 - `make test` — run Vitest unit tests
 - `make e2e` — run Playwright tests
 - `make build` — production static export

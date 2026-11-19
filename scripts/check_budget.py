@@ -6,6 +6,7 @@ Checks (AGENTS.md):
   * materials <= 4, textures <= 2
   * triangles in view <= 150,000
   * ids identical across the GLB (node names/extras), campus.json and nav.json
+  * tours/landmarks have unique ids and every stop/bid references a campus building
 """
 
 from __future__ import annotations
@@ -118,6 +119,33 @@ def main() -> int:
     if not (nav or {}).get("links"):
         failures.append("nav.json has no links")
 
+    # tours / landmarks must reference buildings that exist in campus.json (and therefore
+    # in the GLB, which is checked against campus_ids above).
+    tours = campus.get("tours") or []
+    landmarks = campus.get("landmarks") or []
+    seen_tour_ids: set[str] = set()
+    tour_stops = 0
+    for i, t in enumerate(tours):
+        tid = t.get("id")
+        if not tid or tid in seen_tour_ids:
+            failures.append(f"tour id missing/duplicate at index {i}: {tid!r}")
+        seen_tour_ids.add(tid or "")
+        stops = t.get("stops") or []
+        if not stops:
+            failures.append(f"tour {tid!r} has no stops")
+        for s in stops:
+            tour_stops += 1
+            if s.get("bid") not in campus_ids:
+                failures.append(f"tour {tid!r} stop bid {s.get('bid')!r} not in campus.json")
+    seen_landmark_ids: set[str] = set()
+    for i, l in enumerate(landmarks):
+        lid = l.get("id")
+        if not lid or lid in seen_landmark_ids:
+            failures.append(f"landmark id missing/duplicate at index {i}: {lid!r}")
+        seen_landmark_ids.add(lid or "")
+        if l.get("bid") not in campus_ids:
+            failures.append(f"landmark {lid!r} bid {l.get('bid')!r} not in campus.json")
+
     scatter = json.load(open(args.scatter)) if os.path.exists(args.scatter) else []
     if not scatter:
         failures.append("scatter.json is empty")
@@ -135,6 +163,9 @@ def main() -> int:
             "materials": stats["materials"],
             "textures": stats["textures"],
             "buildings": len(campus_ids),
+            "tours": len(tours),
+            "tour_stops": tour_stops,
+            "landmarks": len(landmarks),
             "nav_nodes": len((nav or {}).get("nodes") or []),
             "nav_links": len((nav or {}).get("links") or []),
             "scatter": len(scatter),

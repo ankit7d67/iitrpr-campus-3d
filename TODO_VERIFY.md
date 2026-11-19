@@ -11,6 +11,15 @@ Every guessed or placeholder value must be listed here and in the README ("Value
 - Building names / aliases / categories: partially from OSM, some manual curation pending.
 - Room numbers: not inventoried yet (empty in `public/data/campus.json`).
 
+## Tour / landmark copy (editorial)
+
+- The orientation tour title and stop notes, and the landmark labels, live in the hand
+  maintained overlay `data-src/campus_extra.json`; the phrasing is editorial (written
+  for the UI), **not** sourced from the institute — verify before treating as official.
+- `building_overrides` in the same file renames OSM's "M2 Lecture Hall" to "Lecture Hall"
+  (the OSM name is kept as an alias) — carried over from an earlier manual edit of
+  `public/data/campus.json`, now source-controlled so `make osm` cannot lose it.
+
 ## Terrain (DEM)
 
 - Copernicus GLO-30 (AWS open bucket `copernicus-dem-30m`, tile N30/E076) is processed by

@@ -66,6 +66,9 @@ iitrpr-campus-3d/
 - [x] Phase 6 — Tests and deployment (`make verify` = **ALL GREEN** locally, e2e 12/12.
   Deploy pending: no git remote yet — branch aligned to `main` to match `deploy.yml`;
   GitHub Pages must be enabled in the repo settings after the first push.)
+- [ ] Phase 7 — Feature parity with the reference app (17 items, agreed order; per-item
+  protocol = check + verify + e2e → PLAN → commit → report → wait for "approved";
+  7-1 done)
 
 ### Phase 2 fix log
 
@@ -258,6 +261,43 @@ Previously gated on "a real DEM is in" — now unblocked (items 6 + road regress
   (worst −0.0000 m); every wall foot exactly on the ground surface (worst 0.0000 m); every
   pad edge closes to grade (0 missing feet) → **PAD_QA PASS**.
 - `make check` CHECK_OK, `make verify` ALL GREEN, e2e **12/12**, previews re-rendered.
+
+## Phase 7 — feature parity with the reference app (in progress)
+
+Reference: https://roshanbinoj-iiitk.github.io/iiitk-campus-in-3d/ (source repo
+`Kunal-Sarpal/iiitk-campus-in-3d`, public) — same OSM → Blender → glTF → Next.js/R3F
+pipeline and the same budgets. Gap analysis produced a 17-item order (7-1 … 7-17);
+the per-item protocol is unchanged: `make check` + `make verify` + `make e2e`, numeric
+QA, PLAN update, commit, report, stop for approval. User decisions: no push yet; full
+parity stack (fuse.js, postprocessing, gltf-transform — no Tailwind/Next16); rooms UI
+ships with empty data; analytics included once a GoatCounter account exists.
+
+### 7-1 — Data & schema: tours, landmarks, cross-field validation (done)
+
+- New hand-maintained source overlay `data-src/campus_extra.json`, merged into
+  `public/data/campus.json` by `scripts/facade_table.py` whenever `make osm` runs:
+  `building_overrides` (allowlisted keys: name/aliases/floors/hours/rooms/verified),
+  one orientation `tours[]` entry and 6 `landmarks[]`. The generator fails loudly on
+  unknown or duplicate ids, and `make osm` is now lossless for campus.json — the
+  regeneration was diff-checked against the previous file (only tours/landmarks added).
+  The override also preserves the earlier manual rename of OSM's "M2 Lecture Hall" to
+  "Lecture Hall", keeping the OSM name as an alias.
+- **Finding:** the tour was previously **empty** — no building carried `tour_stop`, so
+  `getTourStops()` returned []. Real data now exists (9 stops); TourPanel switches to
+  it in item 7-6 (with the camera work).
+- `src/lib/schema.ts`: `roomSchema`, `tourSchema`, `landmarkSchema` plus a
+  `superRefine` on `campusSchema` — duplicate building/tour/landmark ids, room floors
+  within `0..floors`, every tour-stop and landmark `bid` must name a building.
+  `tours`/`landmarks` default to `[]`, so old cached documents still parse.
+  Matching hand-written types added to `src/lib/types.ts`.
+- `scripts/check_budget.py`: parity extended with tour/landmark id uniqueness and
+  `bid` → campus-building references (GLB parity follows transitively through the
+  existing BLDG check); `CHECK_OK` now prints `tours`, `tour_stops`, `landmarks`.
+- QA: CHECK_OK = 26,654 tris / 1.40 MB / 4 mats / 0 tex / 54 buildings /
+  1 tour (9 stops) / 6 landmarks / 626 nav nodes / 666 links. Unit tests 24
+  (schema file 5 → 14, including parse of the real document), typecheck clean,
+  `make verify` **ALL GREEN**, e2e **12/12**. Blender previews unchanged (no model
+  change). Docs updated: README pipeline, AGENTS parity rules, TODO_VERIFY editorial note.
 
 ## Risks
 

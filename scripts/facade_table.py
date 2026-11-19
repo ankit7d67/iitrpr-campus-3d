@@ -143,6 +143,49 @@ def main() -> int:
             "hours": "",
         })
 
+    # Hand-maintained overlay: building overrides, orientation tours and landmark shortcuts.
+    # Every referenced id must name a building that survived the boundary/dedupe filter,
+    # else regeneration fails.
+    extra_path = "data-src/campus_extra.json"
+    extra: dict[str, Any] = {}
+    if os.path.exists(extra_path):
+        with open(extra_path) as f:
+            extra = json.load(f)
+    known_ids = {b["id"] for b in buildings}
+    override_keys = {"name", "aliases", "floors", "hours", "rooms", "verified"}
+    for bid, patch in (extra.get("building_overrides") or {}).items():
+        if bid not in known_ids:
+            raise SystemExit(f"FAIL: campus_extra.json building_overrides id {bid!r} is not a campus building")
+        unknown = set(patch) - override_keys
+        if unknown:
+            raise SystemExit(f"FAIL: campus_extra.json override for {bid!r} has disallowed keys: {sorted(unknown)}")
+        for b in buildings:
+            if b["id"] == bid:
+                b.update(patch)
+                break
+    tours: list[dict[str, Any]] = extra.get("tours") or []
+    landmarks: list[dict[str, Any]] = extra.get("landmarks") or []
+    seen_tour_ids: set[str] = set()
+    for t in tours:
+        tid = t.get("id") or ""
+        if not tid or tid in seen_tour_ids:
+            raise SystemExit(f"FAIL: campus_extra.json tour id missing/duplicate: {tid!r}")
+        seen_tour_ids.add(tid)
+        stops = t.get("stops") or []
+        if not stops:
+            raise SystemExit(f"FAIL: campus_extra.json tour {tid!r} has no stops")
+        for s in stops:
+            if s.get("bid") not in known_ids:
+                raise SystemExit(f"FAIL: campus_extra.json tour {tid!r} stop bid {s.get('bid')!r} is not a campus building")
+    seen_landmark_ids: set[str] = set()
+    for l in landmarks:
+        lid = l.get("id") or ""
+        if not lid or lid in seen_landmark_ids:
+            raise SystemExit(f"FAIL: campus_extra.json landmark id missing/duplicate: {lid!r}")
+        seen_landmark_ids.add(lid)
+        if l.get("bid") not in known_ids:
+            raise SystemExit(f"FAIL: campus_extra.json landmark {lid!r} bid {l.get('bid')!r} is not a campus building")
+
     os.makedirs("public/data", exist_ok=True)
     campus = {
         "name": "IIT Ropar",
@@ -156,6 +199,8 @@ def main() -> int:
             "east": float(bbox.get("boundingbox", ["30.9", "31.1", "77.2", "77.5"])[3]),
         },
         "buildings": buildings,
+        "tours": tours,
+        "landmarks": landmarks,
     }
     with open("public/data/campus.json", "w") as f:
         json.dump(campus, f, indent=2)
@@ -174,7 +219,7 @@ def main() -> int:
     with open("build/dedupe.json", "w") as f:
         json.dump({"contained_share": CONTAINED_SHARE, "dropped": dropped}, f, indent=2)
 
-    print(f"facade rows: {len(buildings)}  dropped contained footprints: {len(dropped)}")
+    print(f"facade rows: {len(buildings)}  dropped contained footprints: {len(dropped)}  tours: {len(tours)} ({sum(len(t.get('stops') or []) for t in tours)} stops)  landmarks: {len(landmarks)}")
     for d in dropped:
         print(f"  dropped osm_id={d['osm_id']} name={d['name'] or '(unnamed)'} -> part of osm_id={d['kept_osm_id']} ({d['kept_name'] or 'unnamed'})")
     return 0

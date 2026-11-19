@@ -38,6 +38,23 @@ export interface Building {
   tour_stop?: number;
 }
 
+export interface TourStop {
+  bid: string;
+  note?: string;
+}
+
+export interface Tour {
+  id: string;
+  title: string;
+  stops: TourStop[];
+}
+
+export interface Landmark {
+  id: string;
+  name: string;
+  bid: string;
+}
+
 export interface Campus {
   name: string;
   official_name: string;
@@ -45,6 +62,8 @@ export interface Campus {
   polygon: unknown;
   bbox: { south: number; north: number; west: number; east: number };
   buildings: Building[];
+  tours: Tour[];
+  landmarks: Landmark[];
 }
 
 export interface ScatterEntry {
