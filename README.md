@@ -77,9 +77,4 @@ This includes floor counts, wall colours, roof types, the campus boundary area,
 the decorative trees and lamps, and the fixed-sun baked shadow/window texture.
 Nothing in those files should be treated as an official campus map.
 
-## Credits
 
-Map data © OpenStreetMap contributors, available under the Open Database
-Licence. The 3D layout and interaction design take inspiration from the
-[IIIT Kottayam 3D Campus](https://roshanbinoj-iiitk.github.io/iiitk-campus-in-3d/)
-project. Full attribution is in [NOTICE.md](./NOTICE.md).
