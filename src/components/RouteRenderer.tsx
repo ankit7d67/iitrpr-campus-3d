@@ -28,7 +28,7 @@ export function RouteRenderer({ fromId, toId }: Props) {
     if (!nav || fromId === toId) return null;
     const r = astar(nav, fromId, toId);
     if (!r) return null;
-    const linePoints = r.path.map((n) => [n.x, Math.max(0, n.z), n.z] as [number, number, number]);
+    const linePoints = r.path.map((n) => [n.x, 0.6, n.z] as [number, number, number]);
     return { ...r, linePoints };
   }, [nav, fromId, toId]);
 

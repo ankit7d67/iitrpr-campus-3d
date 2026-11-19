@@ -31,7 +31,7 @@ No names were invented for either footprint.
 
 ## Campus boundary
 
-- The Nominatim boundary polygon measures **1.411 km² = 349 acres**, centroid
+- The Nominatim boundary polygon measures **1.580 km² = 390 acres**, centroid
   **30.9669622 N, 76.4731524 E**, against the ~501–525 acres the institute states.
   The polygon may omit campus parcels (e.g. the hostel area), which would explain the
   54 fetched buildings that fall outside it. Verify against the campus

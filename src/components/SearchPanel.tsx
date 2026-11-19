@@ -35,7 +35,10 @@ export function SearchPanel() {
           type="search"
           value={input}
           placeholder="Search buildings, hostels, departments…"
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => {
+            setInput(e.target.value);
+            setQuery(e.target.value);
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') setQuery(input);
           }}

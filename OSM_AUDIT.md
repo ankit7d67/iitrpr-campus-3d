@@ -1,6 +1,6 @@
 # OSM Audit — IIT Ropar Campus
 
-Generated: 2026-11-18T06:54:56Z
+Generated: 2026-11-18T07:04:12Z
 
 ## Campus boundary
 
@@ -8,13 +8,13 @@ Generated: 2026-11-18T06:54:56Z
 
 - south / north / west / east: 30.9590354 / 30.9720737 / 76.459751 / 76.4814233
 - bbox centre: 30.9655546 N, 76.4705872 E
-- distance from anchor (30.9704, 76.4691): 0.55 km
-- bbox size: 1.45 km (N-S) x 1.84 km (E-W)
-- bbox area: 2.67 km2 = 661 acres
+- distance from anchor (30.9704, 76.4691): 0.56 km
+- bbox size: 1.45 km (N-S) x 2.07 km (E-W)
+- bbox area: 2.99 km2 = 740 acres
 
 ### Actual boundary polygon (Nominatim)
 
-- polygon area: 1.411 km2 = 349 acres
+- polygon area: 1.580 km2 = 390 acres
 - polygon centroid: 30.9669622 N, 76.4731524 E
 
 ## Buildings
@@ -94,16 +94,16 @@ Generated: 2026-11-18T06:54:56Z
 
 ### Large unnamed inside buildings (name these in OSM)
 
-1. https://www.openstreetmap.org/way/1349204072 — 5348 m2
-2. https://www.openstreetmap.org/way/1349204073 — 5257 m2
-3. https://www.openstreetmap.org/way/1032552712 — 3746 m2
-4. https://www.openstreetmap.org/way/1349204074 — 3265 m2
-5. https://www.openstreetmap.org/way/1349204067 — 2199 m2
-6. https://www.openstreetmap.org/way/1039160851 — 2136 m2
-7. https://www.openstreetmap.org/way/1032552710 — 2076 m2
-8. https://www.openstreetmap.org/way/1349163384 — 1187 m2
-9. https://www.openstreetmap.org/way/1032552709 — 998 m2
-10. https://www.openstreetmap.org/way/1032552708 — 969 m2
+1. https://www.openstreetmap.org/way/1349204072 — 5987 m2
+2. https://www.openstreetmap.org/way/1349204073 — 5885 m2
+3. https://www.openstreetmap.org/way/1032552712 — 4194 m2
+4. https://www.openstreetmap.org/way/1349204074 — 3654 m2
+5. https://www.openstreetmap.org/way/1349204067 — 2462 m2
+6. https://www.openstreetmap.org/way/1039160851 — 2391 m2
+7. https://www.openstreetmap.org/way/1032552710 — 2324 m2
+8. https://www.openstreetmap.org/way/1349163384 — 1329 m2
+9. https://www.openstreetmap.org/way/1032552709 — 1117 m2
+10. https://www.openstreetmap.org/way/1032552708 — 1085 m2
 
 ### Contained footprints (possible duplicate or building part)
 
@@ -134,51 +134,51 @@ Generated: 2026-11-18T06:54:56Z
 
 ## Ranked list needing correction (inside boundary only)
 
-1. [large unnamed inside] (unnamed, osm_id=1349204072) — 5348 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204072
-2. [large unnamed inside] (unnamed, osm_id=1349204073) — 5257 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204073
-3. [large unnamed inside] (unnamed, osm_id=1032552712) — 3746 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1032552712
-4. [large unnamed inside] (unnamed, osm_id=1349204074) — 3265 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204074
-5. [large unnamed inside] (unnamed, osm_id=1349204067) — 2199 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204067
-6. [large unnamed inside] (unnamed, osm_id=1039160851) — 2136 m2 — unnamed, contained footprint (duplicate/part) — https://www.openstreetmap.org/way/1039160851
-7. [large unnamed inside] (unnamed, osm_id=1032552710) — 2076 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1032552710
-8. [large unnamed inside] (unnamed, osm_id=1349163384) — 1187 m2 — unnamed, contained footprint (duplicate/part) — https://www.openstreetmap.org/way/1349163384
-9. [large unnamed inside] (unnamed, osm_id=1032552709) — 998 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1032552709
-10. [large unnamed inside] (unnamed, osm_id=1032552708) — 969 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1032552708
-11. [large unnamed inside] (unnamed, osm_id=1349204101) — 935 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204101
-12. [large unnamed inside] (unnamed, osm_id=1349204075) — 844 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204075
-13. [large unnamed inside] (unnamed, osm_id=1349753248) — 786 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753248
-14. [large unnamed inside] (unnamed, osm_id=1349204104) — 778 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204104
-15. [large unnamed inside] (unnamed, osm_id=1349204105) — 764 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204105
-16. [large unnamed inside] (unnamed, osm_id=1349753244) — 763 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753244
-17. [large unnamed inside] (unnamed, osm_id=1349753246) — 742 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753246
-18. [large unnamed inside] (unnamed, osm_id=1349753247) — 717 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753247
-19. [large unnamed inside] (unnamed, osm_id=1349204087) — 666 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204087
-20. [large unnamed inside] (unnamed, osm_id=1349204080) — 654 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204080
-21. [large unnamed inside] (unnamed, osm_id=1349204099) — 651 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204099
-22. [large unnamed inside] (unnamed, osm_id=1349204079) — 623 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204079
-23. [large unnamed inside] (unnamed, osm_id=1349753254) — 592 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753254
-24. [large unnamed inside] (unnamed, osm_id=1349204088) — 566 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204088
-25. [large unnamed inside] (unnamed, osm_id=1349204085) — 545 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204085
-26. [large unnamed inside] (unnamed, osm_id=1349204082) — 530 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204082
-27. [large unnamed inside] (unnamed, osm_id=1349204068) — 528 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204068
-28. [large unnamed inside] (unnamed, osm_id=1349204083) — 527 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204083
-29. [large unnamed inside] (unnamed, osm_id=1349204086) — 510 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204086
-30. [large unnamed inside] (unnamed, osm_id=1349204100) — 509 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204100
-31. [large unnamed inside] (unnamed, osm_id=1349204084) — 497 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204084
-32. [large unnamed inside] (unnamed, osm_id=1349204081) — 492 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204081
-33. [large unnamed inside] (unnamed, osm_id=1349753245) — 418 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753245
-34. [large unnamed inside] (unnamed, osm_id=1349164576) — 410 m2 — unnamed, contained footprint (duplicate/part) — https://www.openstreetmap.org/way/1349164576
-35. [large unnamed inside] (unnamed, osm_id=1032618611) — 331 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1032618611
-36. [large unnamed inside] (unnamed, osm_id=1349753250) — 325 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753250
-37. [large unnamed inside] (unnamed, osm_id=1349204076) — 250 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204076
-38. [large unnamed inside] (unnamed, osm_id=1349753255) — 207 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753255
-39. [large unnamed inside] (unnamed, osm_id=1349204078) — 187 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204078
-40. [large unnamed inside] (unnamed, osm_id=1349204098) — 135 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204098
-41. [large unnamed inside] (unnamed, osm_id=1349753253) — 89 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753253
-42. [large unnamed inside] (unnamed, osm_id=1349753251) — 33 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753251
-43. [overlap] M2 Lecture Hall (osm_id=1032552691) — 2048 m2 — duplicate/part: (unnamed, osm_id=1039160851) is 100% contained — https://www.openstreetmap.org/way/1032552691
-44. [overlap] Nalanda library (osm_id=1349163385) — 3875 m2 — duplicate/part: (unnamed, osm_id=1349163384) is 100% contained — https://www.openstreetmap.org/way/1349163385
-45. [overlap] S Ramanujan building (osm_id=1349164577) — 2153 m2 — duplicate/part: (unnamed, osm_id=1349164576) is 100% contained — https://www.openstreetmap.org/way/1349164577
+1. [large unnamed inside] (unnamed, osm_id=1349204072) — 5987 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204072
+2. [large unnamed inside] (unnamed, osm_id=1349204073) — 5885 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204073
+3. [large unnamed inside] (unnamed, osm_id=1032552712) — 4194 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1032552712
+4. [large unnamed inside] (unnamed, osm_id=1349204074) — 3654 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204074
+5. [large unnamed inside] (unnamed, osm_id=1349204067) — 2462 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204067
+6. [large unnamed inside] (unnamed, osm_id=1039160851) — 2391 m2 — unnamed, contained footprint (duplicate/part) — https://www.openstreetmap.org/way/1039160851
+7. [large unnamed inside] (unnamed, osm_id=1032552710) — 2324 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1032552710
+8. [large unnamed inside] (unnamed, osm_id=1349163384) — 1329 m2 — unnamed, contained footprint (duplicate/part) — https://www.openstreetmap.org/way/1349163384
+9. [large unnamed inside] (unnamed, osm_id=1032552709) — 1117 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1032552709
+10. [large unnamed inside] (unnamed, osm_id=1032552708) — 1085 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1032552708
+11. [large unnamed inside] (unnamed, osm_id=1349204101) — 1047 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204101
+12. [large unnamed inside] (unnamed, osm_id=1349204075) — 945 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204075
+13. [large unnamed inside] (unnamed, osm_id=1349753248) — 880 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753248
+14. [large unnamed inside] (unnamed, osm_id=1349204104) — 871 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204104
+15. [large unnamed inside] (unnamed, osm_id=1349204105) — 856 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204105
+16. [large unnamed inside] (unnamed, osm_id=1349753244) — 854 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753244
+17. [large unnamed inside] (unnamed, osm_id=1349753246) — 831 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753246
+18. [large unnamed inside] (unnamed, osm_id=1349753247) — 802 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753247
+19. [large unnamed inside] (unnamed, osm_id=1349204087) — 745 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204087
+20. [large unnamed inside] (unnamed, osm_id=1349204080) — 732 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204080
+21. [large unnamed inside] (unnamed, osm_id=1349204099) — 729 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204099
+22. [large unnamed inside] (unnamed, osm_id=1349204079) — 698 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204079
+23. [large unnamed inside] (unnamed, osm_id=1349753254) — 662 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753254
+24. [large unnamed inside] (unnamed, osm_id=1349204088) — 634 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204088
+25. [large unnamed inside] (unnamed, osm_id=1349204085) — 610 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204085
+26. [large unnamed inside] (unnamed, osm_id=1349204082) — 594 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204082
+27. [large unnamed inside] (unnamed, osm_id=1349204068) — 591 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204068
+28. [large unnamed inside] (unnamed, osm_id=1349204083) — 590 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204083
+29. [large unnamed inside] (unnamed, osm_id=1349204086) — 571 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204086
+30. [large unnamed inside] (unnamed, osm_id=1349204100) — 569 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204100
+31. [large unnamed inside] (unnamed, osm_id=1349204084) — 556 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204084
+32. [large unnamed inside] (unnamed, osm_id=1349204081) — 551 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204081
+33. [large unnamed inside] (unnamed, osm_id=1349753245) — 468 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753245
+34. [large unnamed inside] (unnamed, osm_id=1349164576) — 459 m2 — unnamed, contained footprint (duplicate/part) — https://www.openstreetmap.org/way/1349164576
+35. [large unnamed inside] (unnamed, osm_id=1032618611) — 371 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1032618611
+36. [large unnamed inside] (unnamed, osm_id=1349753250) — 363 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753250
+37. [large unnamed inside] (unnamed, osm_id=1349204076) — 280 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204076
+38. [large unnamed inside] (unnamed, osm_id=1349753255) — 232 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753255
+39. [large unnamed inside] (unnamed, osm_id=1349204078) — 210 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204078
+40. [large unnamed inside] (unnamed, osm_id=1349204098) — 151 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349204098
+41. [large unnamed inside] (unnamed, osm_id=1349753253) — 100 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753253
+42. [large unnamed inside] (unnamed, osm_id=1349753251) — 37 m2 — unnamed, large footprint — https://www.openstreetmap.org/way/1349753251
+43. [overlap] M2 Lecture Hall (osm_id=1032552691) — 2293 m2 — duplicate/part: (unnamed, osm_id=1039160851) is 100% contained — https://www.openstreetmap.org/way/1032552691
+44. [overlap] Nalanda library (osm_id=1349163385) — 4338 m2 — duplicate/part: (unnamed, osm_id=1349163384) is 100% contained — https://www.openstreetmap.org/way/1349163385
+45. [overlap] S Ramanujan building (osm_id=1349164577) — 2410 m2 — duplicate/part: (unnamed, osm_id=1349164576) is 100% contained — https://www.openstreetmap.org/way/1349164577
 
 ## Buildings outside the campus boundary (separate, not ranked)
 

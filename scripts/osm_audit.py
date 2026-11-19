@@ -23,10 +23,19 @@ from shapely.geometry import shape
 
 ANCHOR_LAT = 30.9704
 ANCHOR_LON = 76.4691
-KM_PER_DEG_LAT = 111.32
-KM_PER_DEG_LON = 85.0  # at ~30.97 N
 ACRES_PER_KM2 = 247.105
 CONTAINED_SHARE = 0.95  # intersection / smaller footprint => duplicate or part
+
+# Set from the bbox centre latitude in main(); metres per degree.
+M_LAT = 110_900.0
+M_LON = 95_500.0
+
+
+def metres_per_degree(lat: float) -> tuple[float, float]:
+    phi = math.radians(lat)
+    m_lat = 111132.92 - 559.82 * math.cos(2 * phi) + 1.175 * math.cos(4 * phi)
+    m_lon = 111412.84 * math.cos(phi) - 93.5 * math.cos(3 * phi)
+    return m_lat, m_lon
 
 
 def building_geom(feature: dict):
@@ -48,7 +57,7 @@ def building_geom(feature: dict):
 def footprint_m2(geom) -> float:
     if geom is None or geom.is_empty:
         return 0.0
-    return geom.area * KM_PER_DEG_LON * KM_PER_DEG_LAT * 1_000_000.0
+    return geom.area * M_LON * M_LAT
 
 
 def props(feature: dict) -> dict:
@@ -82,12 +91,14 @@ def main() -> int:
     south, north, west, east = [float(x) for x in bb[:4]]
     bbox_centre_lat = (south + north) / 2.0
     bbox_centre_lon = (west + east) / 2.0
-    bbox_width_km = (north - south) * KM_PER_DEG_LAT
-    bbox_height_km = (east - west) * KM_PER_DEG_LON
+    global M_LAT, M_LON
+    M_LAT, M_LON = metres_per_degree(bbox_centre_lat)
+    bbox_width_km = (north - south) * M_LAT / 1000.0
+    bbox_height_km = (east - west) * M_LON / 1000.0
     bbox_area_km2 = bbox_width_km * bbox_height_km
     bbox_dist_km = math.hypot(
-        (bbox_centre_lat - ANCHOR_LAT) * KM_PER_DEG_LAT,
-        (bbox_centre_lon - ANCHOR_LON) * KM_PER_DEG_LON,
+        (bbox_centre_lat - ANCHOR_LAT) * M_LAT / 1000.0,
+        (bbox_centre_lon - ANCHOR_LON) * M_LON / 1000.0,
     )
 
     boundary = shape(bbox.get("polygon") or {
@@ -95,7 +106,7 @@ def main() -> int:
         "coordinates": [[[west, south], [west, north], [east, north], [east, south], [west, south]]],
     })
     boundary_centroid = boundary.centroid
-    boundary_area_km2 = boundary.area * KM_PER_DEG_LAT * KM_PER_DEG_LON
+    boundary_area_km2 = boundary.area * M_LAT * M_LON / 1_000_000.0
 
     osm = json.load(open("data-src/osm_campus.geojson"))
     buildings = [f for f in osm.get("features", []) if props(f).get("layer") == "building"]

@@ -1,59 +1,45 @@
-"""Headless Blender script: bake ambient occlusion into vertex colours and the sun shadow
-into a 2048 px ground texture, then export campus.glb (Meshopt + WebP), nav.json, scatter.json.
+"""Headless Blender script: export the built campus scene to public/models/campus.glb.
 
-Run:  blender -b build/campus.blend -P blender/scripts/bake.py -- --export-format glb
+Run:  blender -b build/campus.blend -P blender/scripts/bake.py
+
+No textures and no lightmaps are baked: the campus.glb stays a low-poly mesh with four
+materials, and lighting/shadows are computed at runtime by React Three Fiber (the app's
+SunPanel changes the sun direction, so a baked shadow map would be wrong). Vertex-colour
+AO, if added later, must keep the GLB under the material/texture budgets.
 """
+
+import os
 
 import bpy
 
-
-def bake_ao() -> None:
-    # Vertex-colour AO bake from a low-res irradiance grid.
-    for mesh in bpy.data.meshes:
-        if not mesh.vertices:
-            continue
-        colors = []
-        for poly in mesh.polygons:
-            center = poly.center
-            ao = max(0.0, min(1.0, 1.0 - (center.z / 30.0) * 0.35))
-            for _ in range(len(poly.vertices)):
-                colors.append((ao, ao, ao, 1.0))
-        mesh.color_attributes.new(name="AO", type="BYTE_COLOR", domain="POINT")
-        for loop, col in zip(mesh.loops, colors):
-            loop.color = col
-
-
-def bake_shadow() -> None:
-    # 2048 px ground shadow map from the sun direction.
-    scene = bpy.context.scene
-    size = 2048
-    img = bpy.data.images.new("ground_shadow", width=size, height=size, alpha=False)
-    px = [0.0] * (size * size * 4)
-    scene.render.image_settings.file_format = "PNG"
-    scene.render.filepath = "/tmp/ground_shadow.png"
-    bpy.ops.render.render(write_still=True)
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+MODEL = os.path.join(ROOT, "public", "models", "campus.glb")
 
 
 def export_glb() -> None:
+    os.makedirs(os.path.dirname(MODEL), exist_ok=True)
     bpy.ops.export_scene.gltf(
-        filepath="/Users/mundr/iitrpr-campus-3d/public/models/campus.glb",
+        filepath=MODEL,
         export_format="GLB",
         export_apply=True,
-        export_mesh_format="MESHOPT",
-        export_texture_format="WEBP",
+        export_extras=True,
         export_cameras=False,
         export_lights=False,
+        export_yup=True,
     )
 
 
 def main() -> None:
-    bake_ao()
-    bake_shadow()
+    objects = [o for o in bpy.context.scene.objects if o.type == "MESH"]
+    tris = sum(len(o.data.loop_triangles) if o.data.loop_triangles else 0 for o in objects)
+    if not tris:
+        for o in objects:
+            o.data.calc_loop_triangles()
+        tris = sum(len(o.data.loop_triangles) for o in objects)
     export_glb()
-    with open("/Users/mundr/iitrpr-campus-3d/public/data/nav.json", "w") as f:
-        json.dump({"nodes": [], "links": []}, f)
-    with open("/Users/mundr/iitrpr-campus-3d/public/data/scatter.json", "w") as f:
-        json.dump([], f)
+    size = os.path.getsize(MODEL)
+    print(f"GLB_OK objects={len(objects)} meshes={len(bpy.data.meshes)} tris={tris} "
+          f"materials={len(bpy.data.materials)} size={size} bytes -> public/models/campus.glb")
 
 
 if __name__ == "__main__":

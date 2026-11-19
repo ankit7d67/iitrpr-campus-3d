@@ -6,6 +6,7 @@ BLENDER_BIN ?= $(BLENDER)
 FLAT ?=
 
 SRC := data-src
+BL_DIR := blender
 PUB := public
 MODEL := $(PUB)/models/campus.glb
 NAV := $(PUB)/data/nav.json
@@ -41,11 +42,13 @@ audit: scripts/osm_audit.py
 dem: $(SRC)/scripts/fetch_dem.py
 	$(PYTHON) $(SRC)/scripts/fetch_dem.py --out $(DEM) $(if $(FLAT),--flat)
 
-blend: $(BL_DIR)/scripts/import_osm.py $(BL_DIR)/scripts/bake.py
+blend: $(BL_DIR)/scripts/import_osm.py
+	$(PYTHON) -c "import os; os.makedirs('build', exist_ok=True)"
 	"$(BLENDER_BIN)" -b -P $(BL_DIR)/scripts/import_osm.py
 
-assets: blend $(BL_DIR)/scripts/bake.py
-	"$(BLENDER_BIN)" -b -P $(BL_DIR)/scripts/bake.py --export-format glb
+assets: blend
+	"$(BLENDER_BIN)" -b build/campus.blend -P $(BL_DIR)/scripts/bake.py
+	$(PYTHON) scripts/build_nav.py
 
 check:
 	$(PYTHON) scripts/check_budget.py --campus $(CAMPUS) --nav $(NAV) --model $(MODEL) --scatter $(SCAT) --tris-in-view 150000 --max-model-mb 5 --max-materials 4 --max-textures 2
@@ -59,9 +62,8 @@ e2e:
 build:
 	$(NPM) run build
 
-preview: $(BL_DIR)/scripts/import_osm.py
-	mkdir -p build/preview
-	"$(BLENDER_BIN)" -b -P $(BL_DIR)/scripts/render_preview.py
+preview: blend
+	"$(BLENDER_BIN)" -b build/campus.blend -P $(BL_DIR)/scripts/render_preview.py
 
 verify: check test build
 	@echo "ALL GREEN"

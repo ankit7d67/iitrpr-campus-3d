@@ -56,8 +56,8 @@ def to_lonlat(geom: dict) -> dict:
 
 
 def footprint_area_m2(geom) -> float:
-    # 1 deg lat = 111.32 km, 1 deg lon = 85.0 km at this latitude.
-    return geom.area * 111.32 * 85.0 * 1_000_000.0
+    # ~31 N: 1 deg lat = 110.9 km, 1 deg lon = 95.5 km. Only used to rank footprints.
+    return geom.area * 110_900.0 * 95_500.0
 
 
 def main() -> int:
