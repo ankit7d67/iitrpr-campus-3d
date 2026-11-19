@@ -110,11 +110,11 @@ iitrpr-campus-3d/
 
 - `make blend` builds `build/campus.blend`: 54 buildings extruded from the facade sheet,
   80 road ribbons inside the boundary buffer. Saved OK.
-- `make assets` exports `public/models/campus.glb` (now 521,184 bytes, 110 objects incl. 54
-  `ENTR_` entrance markers + 7,420 triangles — terrain ground grid included, 4 materials,
-  0 textures) and regenerates `public/data/nav.json` (626 nodes incl. 54 `ENTR_*` entrances,
-  666 links) + `public/data/scatter.json` (250 trees) via `scripts/build_nav.py`.
-- `make check`: CHECK_OK — size 0.52 MB, triangles 7,420, materials 4, textures 0, buildings 54;
+- `make assets` exports `public/models/campus.glb` (now ~614 KB, 110 objects incl. 54
+  `ENTR_` entrance markers + 8,796 triangles — terrain ground grid + street kerbs included,
+  4 materials, 0 textures) and regenerates `public/data/nav.json` (626 nodes incl. 54 `ENTR_*`
+  entrances, 666 links) + `public/data/scatter.json` (250 trees) via `scripts/build_nav.py`.
+- `make check`: CHECK_OK — size 0.60 MB, triangles 8,796, materials 4, textures 0, buildings 54;
   GLB BLDG buildings ↔ campus.json OK; GLB `ENTR_*` ↔ nav `ENTR_*` OK; scatter non-empty.
 - `make preview`: 3 renders into `build/preview/{main,aerial,close}.png` (EEVEE Next headless OK).
   Image stats (PIL) show real content (std 12–16, ~800–1100 colours) after fixing the camera
@@ -186,6 +186,15 @@ iitrpr-campus-3d/
   terrain-offset too. `bake.py` AO gradient now uses the mesh z-range (buildings have base_z).
 - Budgets kept: GLB 7,420 tris, 0.52 MB, 4 materials, 0 textures. `make check` CHECK_OK,
   `make verify` ALL GREEN, `make e2e` 12/12.
+
+### Phase 4b — Item 7: kerbs (done)
+
+- `blender/scripts/import_osm.py`: `road_ribbon(..., kerb=True)` adds a kerb (0.15 m face +
+  0.35 m lip, both sides) along `tertiary`/`unclassified` streets only; `KERB_H`/`KERB_W`/
+  `KERB_HIGHWAYS` constants. Kerbs reuse `MAT_road` (budgets: materials stay 4, textures 0).
+- Budgets after kerbs: GLB **8,796 tris**, **0.60 MB**, 4 materials, 0 textures — well inside
+  150k tris / 5 MB / 4 materials / 2 textures, so kerbs were allowed.
+- `make check` CHECK_OK, `make verify` ALL GREEN, `make e2e` 12/12.
 
 ## Risks
 

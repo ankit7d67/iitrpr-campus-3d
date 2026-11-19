@@ -27,6 +27,9 @@ ROAD_WIDTHS = {"tertiary": 8.0, "unclassified": 6.0, "service": 4.0, "path": 2.5
 GROUND_SIZE = 5000.0
 GROUND_SEGS = 40  # ground grid subdivisions (terrain follows the DEM inside the bbox)
 ROAD_Z = 0.06
+KERB_H = 0.15   # kerb rise above the road surface (m)
+KERB_W = 0.35   # kerb lip width (m)
+KERB_HIGHWAYS = {"tertiary", "unclassified"}  # only real streets get kerbs
 
 
 def load_dem_grid() -> dict | None:
@@ -246,7 +249,10 @@ def build_ground(mat, grid: dict | None, lat0: float, lon0: float) -> None:
     obj["bid"] = "GROUND"
 
 
-def road_ribbon(points: list[tuple[float, float]], width: float, z_of=None) -> tuple[list, list]:
+def road_ribbon(points: list[tuple[float, float]], width: float, z_of=None,
+                kerb: bool = False) -> tuple[list, list]:
+    """Road ribbon quads; with kerb=True also builds a raised kerb (0.15 m face + 0.35 m lip)
+    along both edges, reusing the road material (no new material, no textures)."""
     verts, faces = [], []
     for i in range(len(points) - 1):
         (x0, y0), (x1, y1) = points[i], points[i + 1]
@@ -254,20 +260,47 @@ def road_ribbon(points: list[tuple[float, float]], width: float, z_of=None) -> t
         seg = math.hypot(dx, dy)
         if seg < 1e-3:
             continue
-        nx, ny = -dy / seg * width / 2.0, dx / seg * width / 2.0
-        base = len(verts)
+        ux, uy = -dy / seg, dx / seg  # unit left normal
+        hl = width / 2.0
+        lx0, ly0 = x0 + ux * hl, y0 + uy * hl
+        rx0, ry0 = x0 - ux * hl, y0 - uy * hl
+        lx1, ly1 = x1 + ux * hl, y1 + uy * hl
+        rx1, ry1 = x1 - ux * hl, y1 - uy * hl
         if z_of is None:
-            z0 = z1 = ROAD_Z
+            zl0 = zr0 = zl1 = zr1 = ROAD_Z
         else:
-            z0 = z_of(x0 + nx, y0 + ny)
-            z1 = z_of(x1 + nx, y1 + ny)
+            zl0, zr0 = z_of(lx0, ly0), z_of(rx0, ry0)
+            zl1, zr1 = z_of(lx1, ly1), z_of(rx1, ry1)
+        base = len(verts)
         verts += [
-            (x0 + nx, y0 + ny, z0),
-            (x0 - nx, y0 - ny, z0),
-            (x1 - nx, y1 - ny, z1),
-            (x1 + nx, y1 + ny, z1),
+            (lx0, ly0, zl0),
+            (rx0, ry0, zr0),
+            (rx1, ry1, zr1),
+            (lx1, ly1, zl1),
         ]
         faces.append((base, base + 1, base + 2, base + 3))
+        if not kerb:
+            continue
+        for s in (1, -1):  # +1 left edge, -1 right edge
+            zb0 = zl0 if s > 0 else zr0
+            zb1 = zl1 if s > 0 else zr1
+            ex0, ey0 = x0 + ux * hl * s, y0 + uy * hl * s
+            ex1, ey1 = x1 + ux * hl * s, y1 + uy * hl * s
+            ox0, oy0 = ex0 + ux * KERB_W * s, ey0 + uy * KERB_W * s
+            ox1, oy1 = ex1 + ux * KERB_W * s, ey1 + uy * KERB_W * s
+            zt0, zt1 = zb0 + KERB_H, zb1 + KERB_H
+            b = len(verts)
+            verts += [
+                (ex0, ey0, zb0), (ex1, ey1, zb1),      # bottom edge
+                (ex0, ey0, zt0), (ex1, ey1, zt1),      # top edge
+                (ox0, oy0, zt0), (ox1, oy1, zt1),      # outer top
+            ]
+            if s > 0:
+                faces.append((b, b + 2, b + 3, b + 1))  # vertical face, normal +n
+                faces.append((b + 2, b + 3, b + 5, b + 4))  # lip, normal +z
+            else:
+                faces.append((b, b + 1, b + 3, b + 2))  # vertical face, normal -n
+                faces.append((b + 2, b + 4, b + 5, b + 3))  # lip, normal +z
     return verts, faces
 
 
@@ -296,11 +329,12 @@ def build_roads(features: list, lat0: float, lon0: float, south: float, north: f
         if len(pts) < 2:
             continue
         width = ROAD_WIDTHS.get(p.get("highway") or "", 3.0)
+        kerb = (p.get("highway") or "") in KERB_HIGHWAYS
 
         def z_of(x, y, _lat0=lat0, _lon0=lon0, _grid=grid):
             return terrain_z_xy(_grid, x, y, _lat0, _lon0) + ROAD_Z
 
-        v, fc = road_ribbon(pts, width, z_of)
+        v, fc = road_ribbon(pts, width, z_of, kerb=kerb)
         offset = len(verts)
         verts += v
         faces += [tuple(i + offset for i in face) for face in fc]
