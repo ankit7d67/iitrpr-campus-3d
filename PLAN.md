@@ -134,6 +134,20 @@ iitrpr-campus-3d/
 - Confirmed `make verify` on CI needs no Blender and no extra Python packages (check_budget.py is
   stdlib-only; vitest + next build cover the rest). Workflow unchanged.
 
+### Phase 4b — Item 2: trees (done)
+
+- `src/components/CampusScene.tsx`: InstancedMesh (Cones, 250 instances from `public/data/scatter.json`)
+  via dummy Object3D matrices; `frustumCulled={false}`; trees only rendered when GLB on.
+- `make verify` ALL GREEN; `make e2e` 12/12 passed; no budget change (GLB untouched; tree cost in scene).
+
+### Phase 4b — Item 3: windows + night mode (done)
+
+- `blender/scripts/import_osm.py` + `blender/scripts/bake.py`: procedural window rows on `MAT_wall`
+  via Wave Texture bands + ColourRamp (cheaper than texture, no new material, no new geometry).
+- Night mode: `src/lib/store.ts` (+`night`/`setNight`), `src/components/SunPanel.tsx` (toggle button),
+  `src/components/CampusScene.tsx` (`applyNight` via GLTF group ref setting Principled emission).
+- Budgets kept: GLB materials 4, textures 0, triangles 3,790, buildings 54.
+
 ## Risks
 
 - DEM download (no auth-free source yet; fallback: flat ground behind a Makefile flag).
