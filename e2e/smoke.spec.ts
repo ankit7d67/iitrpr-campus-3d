@@ -90,6 +90,17 @@ test('loading screen shows progress while the model loads, then disappears', asy
   await expect(loader).toBeHidden({ timeout: 15000 });
 });
 
+test('building labels are visible and clicking one zooms into it', async ({ page }) => {
+  await page.goto('/');
+  const label = page.locator('[data-testid="map-label"]').filter({ hasText: 'Nalanda library' }).first();
+  await expect(label).toBeVisible();
+  await label.click();
+  await expect(page.locator('.viewport')).toHaveAttribute('data-focus-id', 'BLDG_1349163385');
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toContainText(/Nalanda/i);
+});
+
 test('data fetch failure shows an actionable error card', async ({ page }) => {
   await page.route('**/data/campus.json', (route) => route.fulfill({ status: 500, body: 'fail' }));
   await page.goto('/');

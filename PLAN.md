@@ -506,6 +506,25 @@ ships with empty data; analytics included once a GoatCounter account exists.
   `npm run dev` / `next dev` process trio that had left port 3000 occupied and
   caused a Playwright webServer timeout on the first attempt.
 
+### 7-11 — Building labels + click-to-zoom (done)
+
+- New `src/components/Labels.tsx` renders drei `<Html>` pills for `campus.landmarks`
+  plus the currently selected building, anchored to the **top centre of each
+  building's GLB bounding box** — computed once in `CampusScene.attachGltf` via
+  `Box3.setFromObject` on every `BLDG_*` mesh. `nav.json` `ENTR_*` nodes are a
+  fallback anchor in low quality, where the GLB is not loaded. Landmark tags hide
+  beyond a 3200-unit camera distance; the selected tag always stays.
+- Clicking a tag selects the building, opens its info dialog, and calls the
+  existing `focusOn` → `CameraFocus` fly-to. Clicking a building **mesh** in the
+  scene does the same: the GLB group has an `onClick` handler that walks up from
+  the hit object to its `BLDG_*` ancestor.
+- `.viewport` carries `data-focus-id` so e2e can prove a label click issued a
+  camera-focus request (without needing to read camera internals).
+- New e2e case: *building labels are visible and clicking one zooms into it*.
+- QA: `make verify` **ALL GREEN** (39 unit tests + typecheck + static export),
+  `make e2e` **28/28** on chromium + pixel7 (was 26/26). CHECK_OK unchanged:
+  33,724 tris / 1.82 MB / 4 materials / 2 textures.
+
 ## Fixes
 
 - **(a)** Pad faces + retaining walls → `MAT_ground` via 3rd BLDG material slot (commit `08947bd`): 218 primitives, 4 materials, tris unchanged 26,654. verify + e2e 14/14.

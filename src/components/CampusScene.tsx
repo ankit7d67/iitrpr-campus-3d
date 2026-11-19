@@ -1,4 +1,4 @@
-import { Canvas } from '@react-three/fiber';
+import { Canvas, type ThreeEvent } from '@react-three/fiber';
 import { OrbitControls, ContactShadows, Gltf } from '@react-three/drei';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
@@ -10,8 +10,11 @@ import { RouteRenderer } from './RouteRenderer';
 import { CameraFocus } from './CameraFocus';
 import { SkyDome } from './SkyDome';
 import { StreetLamps } from './StreetLamps';
+import { Labels } from './Labels';
 
 const CAMPUS_GLB = '/models/campus.glb';
+
+type LabelAnchors = Record<string, [number, number, number]>;
 
 function applyNight(scene: THREE.Group | null, glow: number) {
   if (!scene) return;
@@ -79,6 +82,7 @@ export function CampusScene() {
   const sunUtcMs = useCampusStore((s) => s.sunUtcMs);
   const route = useCampusStore((s) => s.route);
   const [scatter, setScatter] = useState<ScatterEntry[]>([]);
+  const [anchors, setAnchors] = useState<LabelAnchors>({});
   const lamps = useMemo(() => scatter.filter((s) => s.type === 'lamp'), [scatter]);
   const trees = useMemo(() => scatter.filter((s) => s.type === 'tree'), [scatter]);
   const gltfRef = useRef<THREE.Group>(null);
@@ -132,11 +136,35 @@ export function CampusScene() {
     if (!group) return;
     // 7-10: the GLB has attached — release the loading screen.
     useCampusStore.getState().setModelReady(true);
+    group.updateMatrixWorld(true);
+    const found: LabelAnchors = {};
     group.traverse((obj) => {
       if (obj.name.startsWith('ENTR_')) obj.visible = false;
+      if (obj.name.startsWith('BLDG_')) {
+        // 7-11: label anchors sit at the middle of each building's roof.
+        const box = new THREE.Box3().setFromObject(obj);
+        if (!box.isEmpty()) {
+          const center = box.getCenter(new THREE.Vector3());
+          found[obj.name] = [center.x, box.max.y + 3, center.z];
+        }
+      }
     });
+    setAnchors(found);
     const st = useCampusStore.getState();
     applyNight(group, Math.max(st.night ? 1 : 0, nightFactor(getSunInfo(st.sunUtcMs))));
+  }, []);
+
+  // Clicking any building mesh selects it and flies the camera to it. Events
+  // bubble from the GLB child meshes to this wrapper group.
+  const handleSceneClick = useCallback((event: ThreeEvent<MouseEvent>) => {
+    let obj: THREE.Object3D | null = event.object;
+    while (obj && !obj.name.startsWith('BLDG_')) obj = obj.parent;
+    if (!obj) return;
+    event.stopPropagation();
+    const st = useCampusStore.getState();
+    st.setSelectedBuildingId(obj.name);
+    st.setInfoOpen(true);
+    st.focusOn(obj.name);
   }, []);
 
   return (
@@ -151,8 +179,11 @@ export function CampusScene() {
       <directionalLight position={keyPosition} intensity={keyIntensity} castShadow={glbEnabled} shadow-mapSize={[2048, 2048]} color={keyColor} />
       <directionalLight position={[-300, 200, -250]} intensity={dim ? 0.1 : 0.35} />
       <Suspense fallback={null}>
-        {glbEnabled ? <Gltf src={CAMPUS_GLB} ref={attachGltf} /> : null}
+        <group onClick={handleSceneClick}>
+          {glbEnabled ? <Gltf src={CAMPUS_GLB} ref={attachGltf} /> : null}
+        </group>
       </Suspense>
+      <Labels anchors={anchors} />
       <Trees scatter={trees} />
       <StreetLamps lamps={lamps} />
       {/* Route line must render inside the Canvas (drei <Line> needs R3F context) */}

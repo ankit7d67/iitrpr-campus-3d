@@ -38,10 +38,12 @@ function DeepLinks() {
 }
 
 function Home() {
+  const focus = useCampusStore((s) => s.focus);
   return (
     <div className="app">
       <Loader />
-      <div className="viewport">
+      {/* Exposed for e2e: proves a label/mesh click issued a camera focus request. */}
+      <div className="viewport" data-focus-id={focus?.id ?? ''}>
         <CampusScene />
         <div className="top-right">
           <SunPanel />
