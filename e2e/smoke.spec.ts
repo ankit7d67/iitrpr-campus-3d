@@ -24,6 +24,23 @@ test('campus GLB is served and the canvas renders', async ({ page }) => {
   expect(glErrors, glErrors.join('\n')).toEqual([]);
 });
 
+test('postprocessing grade compiles at day and night', async ({ page }) => {
+  const shaderErrors: string[] = [];
+  page.on('console', (m) => {
+    if (m.type() === 'error' && /webgl|shader|glsl|material|texture|gl_|effect/i.test(m.text())) {
+      shaderErrors.push(m.text());
+    }
+  });
+  await page.goto('/');
+  await expect(page.locator('canvas').first()).toBeVisible();
+  const sun = page.locator('.sun-panel');
+  await sun.locator('#sun-time').fill('2026-06-15T22:00');
+  await page.waitForTimeout(500);
+  await sun.locator('#sun-time').fill('2026-06-15T12:30');
+  await page.waitForTimeout(500);
+  expect(shaderErrors, shaderErrors.join('\n')).toEqual([]);
+});
+
 test('served GLB uses Meshopt compression and WebP textures', async ({ page }) => {
   await page.goto('/');
   const info = await page.evaluate(async () => {

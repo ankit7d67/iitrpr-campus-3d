@@ -571,6 +571,25 @@ ships with empty data; analytics included once a GoatCounter account exists.
   chromium + pixel7 (was 30/30). CHECK_OK: 0.54 MB / 33,724 tris / 4 mats /
   2 tex / meshopt true / webp_textures 2.
 
+### 7-14 — Postprocessing (done)
+
+- Added `@react-three/postprocessing` + `postprocessing` (devdeps of the reference
+  app) and new `src/components/Effects.tsx`: an `EffectComposer` with `Bloom`
+  plus a custom `GradeEffect` (ACES filmic tone mapping, slight contrast, warm
+  tint, vignette and static film grain). This is the reference grade with the
+  parameters driven by this app's own `nightGlow` instead of a separate lighting
+  table: exposure `1 + 0.3·glow`, bloom threshold `0.95 − 0.6·glow`, intensity
+  `0.2 + 0.5·glow`.
+- `CampusScene` renders the composer only when the effective quality tier is
+  `high`, so Low mode skips the extra full-screen buffer. The composer disables
+  three.js's own tone mapping, as in the reference.
+- New e2e case watches for WebGL/shader/GL errors while toggling the sun slider
+  between 22:00 and 12:30 — no shader recompilation or glow-transition errors.
+- QA: `make verify` **ALL GREEN** (44 unit tests + typecheck + static export),
+  `make e2e` **34/34** on chromium + pixel7 (was 32/32). CHECK_OK unchanged:
+  0.54 MB / 33,724 tris / 4 mats / 2 tex / meshopt + webp. First-load JS grew
+  394 → 503 kB (the postprocessing runtime), still within the shipped budget.
+
 ## Fixes
 
 - **(a)** Pad faces + retaining walls → `MAT_ground` via 3rd BLDG material slot (commit `08947bd`): 218 primitives, 4 materials, tris unchanged 26,654. verify + e2e 14/14.

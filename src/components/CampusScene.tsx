@@ -11,6 +11,7 @@ import { CameraFocus } from './CameraFocus';
 import { SkyDome } from './SkyDome';
 import { StreetLamps } from './StreetLamps';
 import { Labels } from './Labels';
+import { Effects } from './Effects';
 
 const CAMPUS_GLB = '/models/campus.glb';
 
@@ -194,6 +195,8 @@ export function CampusScene() {
       <CameraFocus />
       <ContactShadows position={[0, 0.1, 0]} opacity={0.35} scale={2500} blur={2.5} far={60} />
       <OrbitControls enablePan enableDamping makeDefault target={[0, 0, 0]} maxDistance={8000} />
+      {/* 7-14: the finishing pass costs a full-screen buffer, so Low skips it. */}
+      {effectiveQuality === 'high' ? <Effects nightGlow={nightGlow} /> : null}
     </Canvas>
   );
 }
