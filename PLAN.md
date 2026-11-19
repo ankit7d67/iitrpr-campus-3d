@@ -63,7 +63,9 @@ iitrpr-campus-3d/
 - [x] Phase 3 — Building table and data (54 buildings: 57 in-boundary minus 3 contained duplicates)
 - [ ] Phase 4 — Blender model (Blender 4.2.16 LTS installed at `C:\Program Files\Blender Foundation\Blender 4.2\blender.exe`, exposed as `$(BLENDER)`; DONE — asset pipeline green, `make preview` rendering; visual QA pending)
 - [x] Phase 5 — Web app
-- [x] Phase 6 — Tests and deployment (partial: make verify blocked on Phase 4 assets)
+- [x] Phase 6 — Tests and deployment (`make verify` = **ALL GREEN** locally, e2e 12/12.
+  Deploy pending: no git remote yet — branch aligned to `main` to match `deploy.yml`;
+  GitHub Pages must be enabled in the repo settings after the first push.)
 
 ### Phase 2 fix log
 
