@@ -232,12 +232,14 @@ def offset_ring(ring: list[tuple[float, float]], dist: float) -> list[tuple[floa
 
 
 def build_building(bid: str, ring: list[tuple[float, float]], floors: int, wall_mat, roof_mat,
-                   base_z: float = 0.0, ground_z=None) -> None:
+                   base_z: float = 0.0, ground_z=None, ground_mat=None) -> None:
     """Extrude a building and, when ground_z is given, sit it on a level pad:
     base_z becomes the highest terrain under the footprint (nothing is buried),
     a PAD_OFFSET-wide pad annulus closes the ring to grade, and retaining walls
     drop (or rise, on the uphill side) from the pad edge to the ground surface.
     All ground contact uses the same surface the GROUND mesh is made of.
+    Pad faces use MAT_ground (3rd material slot) so the platform blends with the
+    terrain; slots share the existing materials, so the GLB stays at 4 materials.
     """
     if len(ring) < 3:
         return
@@ -255,6 +257,7 @@ def build_building(bid: str, ring: list[tuple[float, float]], floors: int, wall_
     faces.append(tuple(range(n, 2 * n)))  # flat roof
     # Walls use material 0, the roof face uses material 1.
     face_mats = [0] * (len(faces) - 1) + [1]
+    mats = [wall_mat, roof_mat]
     if ground_z is not None:
         pad = offset_ring(ring, PAD_OFFSET)
         gz_pad = [ground_z(x, y) for x, y in pad]
@@ -262,19 +265,26 @@ def build_building(bid: str, ring: list[tuple[float, float]], floors: int, wall_
         bot_off = 3 * n   # retaining-wall feet (z = terrain at the pad edge)
         verts += [(x, y, base_z) for x, y in pad]
         verts += [(x, y, gz_pad[i]) for i, (x, y) in enumerate(pad)]
+        # Pad faces: ground-coloured via a 3rd slot referencing the existing
+        # MAT_ground (no new material). Fall back to the wall slot if absent.
+        if ground_mat is not None:
+            mats.append(ground_mat)
+            pad_mat = len(mats) - 1
+        else:
+            pad_mat = 0
         for i in range(n):
             j = (i + 1) % n
             # Pad top: quad between footprint ring and pad edge, normal +z.
             faces.append((i, top_off + i, top_off + j, j))
-            face_mats.append(0)
+            face_mats.append(pad_mat)
             # Retaining wall at the pad edge; order by which end is higher so the
             # face normal points away from the building on both cut and fill sides.
             if (gz_pad[i] + gz_pad[j]) * 0.5 <= base_z:
                 faces.append((top_off + i, bot_off + i, bot_off + j, top_off + j))
             else:
                 faces.append((bot_off + i, top_off + i, top_off + j, bot_off + j))
-            face_mats.append(0)
-    obj = add_mesh_object(bid, verts, faces, [wall_mat, roof_mat], face_mats)
+            face_mats.append(pad_mat)
+    obj = add_mesh_object(bid, verts, faces, mats, face_mats)
     obj["bid"] = bid
     obj["verified"] = "false"
 
@@ -514,7 +524,7 @@ def main() -> None:
         gz_fn = (lambda x, y, _g=grid, _la=lat0, _lo=lon0:
                  ground_surface_z(_g, x, y, _la, _lo))
         build_building(bid, ring, int(row.get("floors") or 1), wall_mat, roof_mat,
-                       ground_z=gz_fn)
+                       ground_z=gz_fn, ground_mat=ground_mat)
         built += 1
         ent = nearest_road_point((ring[0][0], ring[0][1], 0.0), geojson.get("features", []), lat0, lon0, south, north, west, east)
         if ent is not None:
