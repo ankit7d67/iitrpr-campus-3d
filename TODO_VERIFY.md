@@ -40,6 +40,14 @@ Every guessed or placeholder value must be listed here and in the README ("Value
   count and appearance are unverified against the real campus — do not treat them as
   an inventory of actual street furniture.
 
+## Compressed model (7-13)
+
+- Meshopt uses 16-bit quantised positions; the measured whole-scene bound shift
+  is 4.41 mm. Verify on a real device that thin facade pads and road edges do
+  not z-fight.
+- Both textures are `EXT_texture_webp`. Older browsers without WebP support
+  will fail to decode the model; the e2e run covers current Chromium only.
+
 ## Baked lighting (7-9)
 
 - The baked ground shadow in `blender/textures/ground_bake.png` is rasterised for

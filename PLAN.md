@@ -544,6 +544,33 @@ ships with empty data; analytics included once a GoatCounter account exists.
 - QA: `make verify` **ALL GREEN** (44 unit tests, was 39), `make e2e` **30/30**
   (was 28/28). CHECK_OK unchanged: 33,724 tris / 1.82 MB / 4 mats / 2 tex.
 
+### 7-13 — Meshopt + WebP model compression (done)
+
+- `bake.py` now accepts `-- --out <path>`; `make assets` writes a **raw** GLB to
+  `build/raw_campus.glb`, then new `scripts/compress_glb.mjs` runs glTF-Transform
+  `optimize` (WebP textures, no join/flatten/instance/simplify/palette) followed
+  by `meshopt --quantize-position 16`. Keeping raw and final files separate
+  makes `make assets` idempotent. The CLI is a dev dependency
+  (`@gltf-transform/*`, `meshoptimizer`); drei's `Gltf` already installs the
+  Meshopt decoder by default.
+- The validator exposed a latent 7-9 bug: all 54 hidden `ENTR_*` markers used
+  the now-textured `MAT_ground` without `TEXCOORD_0`. `import_osm.add_uvs()` now
+  gives them a small ground island; glTF validation reports **no errors**
+  (only harmless `UNUSED_OBJECT` infos for roof-loop UVs). Validation runs
+  before Meshopt, which the stock validator does not understand.
+- `check_budget.py` reports `meshopt` / `webp_textures` and `make check` now
+  passes `--require-meshopt --require-webp-textures` (strict).
+- Numeric QA: raw **1.84 MB → final 0.54 MB** (−70.6 %); 33,724 triangles,
+  4 materials, 2 textures and all 110 meshes/named `BLDG_*` nodes unchanged.
+  `gltf-transform inspect` scene bounds differ by at most **4.41 mm**
+  (872.77069 → 872.77510 m), comfortably below the 1 cm z-fighting target.
+- New e2e case parses the served GLB JSON chunk and asserts
+  `EXT_meshopt_compression`, `EXT_texture_webp`, two `image/webp` images and
+  110 meshes.
+- QA: `make verify` **ALL GREEN** (44 unit tests), `make e2e` **32/32** on
+  chromium + pixel7 (was 30/30). CHECK_OK: 0.54 MB / 33,724 tris / 4 mats /
+  2 tex / meshopt true / webp_textures 2.
+
 ## Fixes
 
 - **(a)** Pad faces + retaining walls → `MAT_ground` via 3rd BLDG material slot (commit `08947bd`): 218 primitives, 4 materials, tris unchanged 26,654. verify + e2e 14/14.

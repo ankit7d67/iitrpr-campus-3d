@@ -29,7 +29,7 @@ make verify     # full check: budget + tests + build ; ends with "ALL GREEN"
 | `make osm` | download OSM data for the campus |
 | `make dem` | download + convert DEM |
 | `make blend` | headless Blender build script |
-| `make assets` | bake + export campus.glb, nav.json, scatter.json |
+| `make assets` | bake raw GLB, compress it (Meshopt/WebP) into campus.glb, export nav.json + scatter.json |
 | `make check` | budget checks (<=150k tris in view, <=5 MB model, <=4 materials, <=2 textures, ID parity) |
 | `make test` | Vitest unit tests |
 | `make e2e` | Playwright tests |

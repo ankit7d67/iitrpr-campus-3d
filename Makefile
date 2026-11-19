@@ -58,11 +58,12 @@ blend: $(BL_DIR)/scripts/import_osm.py dem-grid clip-roads
 	"$(BLENDER_BIN)" -b -P $(BL_DIR)/scripts/import_osm.py
 
 assets: blend
-	"$(BLENDER_BIN)" -b build/campus.blend -P $(BL_DIR)/scripts/bake.py
+	"$(BLENDER_BIN)" -b build/campus.blend -P $(BL_DIR)/scripts/bake.py -- --out build/raw_campus.glb
+	$(NODE) scripts/compress_glb.mjs
 	$(PYTHON) scripts/build_nav.py
 
 check:
-	$(PYTHON) scripts/check_budget.py --campus $(CAMPUS) --nav $(NAV) --model $(MODEL) --scatter $(SCAT) --tris-in-view 150000 --max-model-mb 5 --max-materials 4 --max-textures 2
+	$(PYTHON) scripts/check_budget.py --campus $(CAMPUS) --nav $(NAV) --model $(MODEL) --scatter $(SCAT) --tris-in-view 150000 --max-model-mb 5 --max-materials 4 --max-textures 2 --require-meshopt --require-webp-textures
 
 test:
 	$(NPM) run test

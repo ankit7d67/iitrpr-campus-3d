@@ -64,6 +64,11 @@ def glb_stats(path: str) -> dict:
         "materials": len(j.get("materials") or []),
         "textures": len(j.get("textures") or []),
         "triangles": triangles,
+        "meshopt": "EXT_meshopt_compression" in (j.get("extensionsUsed") or []),
+        "webp_images": sum(
+            1 for im in (j.get("images") or [])
+            if im.get("mimeType") == "image/webp"
+        ),
         "building_ids": buildings,
         "entrance_ids": entrances,
     }
@@ -79,6 +84,8 @@ def main() -> int:
     ap.add_argument("--max-model-mb", type=float, default=5.0)
     ap.add_argument("--max-materials", type=int, default=4)
     ap.add_argument("--max-textures", type=int, default=2)
+    ap.add_argument("--require-meshopt", action="store_true")
+    ap.add_argument("--require-webp-textures", action="store_true")
     args = ap.parse_args()
 
     stats = glb_stats(args.model)
@@ -92,6 +99,12 @@ def main() -> int:
         failures.append(f"textures {stats['textures']} > {args.max_textures}")
     if stats["triangles"] > args.tris_in_view:
         failures.append(f"triangles {stats['triangles']} > {args.tris_in_view} in view")
+    if args.require_meshopt and not stats["meshopt"]:
+        failures.append("EXT_meshopt_compression missing (run `make assets`)")
+    if args.require_webp_textures and stats["webp_images"] != stats["textures"]:
+        failures.append(
+            f"WebP textures {stats['webp_images']} != textures {stats['textures']}"
+        )
 
     campus = json.load(open(args.campus))
     nav = json.load(open(args.nav))
@@ -175,6 +188,8 @@ def main() -> int:
             "triangles": stats["triangles"],
             "materials": stats["materials"],
             "textures": stats["textures"],
+            "meshopt": stats["meshopt"],
+            "webp_textures": stats["webp_images"],
             "buildings": len(campus_ids),
             "tours": len(tours),
             "tour_stops": tour_stops,

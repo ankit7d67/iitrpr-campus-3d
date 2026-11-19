@@ -1,6 +1,9 @@
-"""Headless Blender script: export the built campus scene to public/models/campus.glb.
+"""Headless Blender script: export the built campus scene to a raw GLB.
 
-Run:  blender -b build/campus.blend -P blender/scripts/bake.py
+Run:  blender -b build/campus.blend -P blender/scripts/bake.py -- --out build/raw_campus.glb
+
+The raw file is compressed by scripts/compress_glb.mjs (Meshopt + WebP) into the
+public/model path; keeping them separate avoids compressing an already compressed GLB.
 
 Two small baked textures keep the low-poly scene grounded without adding
 materials (7-9):
@@ -19,6 +22,7 @@ The GLB therefore has 4 materials, 2 textures, and no extra triangles.
 
 import math
 import os
+import sys
 
 import bpy
 import numpy as np
@@ -26,6 +30,17 @@ import numpy as np
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 MODEL = os.path.join(ROOT, "public", "models", "campus.glb")
 TEX_DIR = os.path.join(ROOT, "blender", "textures")
+
+
+def output_path() -> str:
+    """Optional `-- --out <path>` so `make assets` writes a raw GLB for 7-13."""
+    if "--" in sys.argv:
+        args = sys.argv[sys.argv.index("--") + 1:]
+        if "--out" in args:
+            i = args.index("--out")
+            if i + 1 < len(args):
+                return os.path.abspath(args[i + 1])
+    return MODEL
 
 SHADOW_SIZE = 1024
 SHADOW_FLOOR = 0.62          # ground brightness in full baked shadow
@@ -240,8 +255,8 @@ def bake_ao(objects) -> None:
     print(f"AO_OK baked_meshes={baked}")
 
 
-def export_glb() -> None:
-    os.makedirs(os.path.dirname(MODEL), exist_ok=True)
+def export_glb(out: str) -> None:
+    os.makedirs(os.path.dirname(out), exist_ok=True)
     objects = [o for o in bpy.context.scene.objects if o.type == "MESH"]
     wall = bpy.data.materials.get("MAT_wall")
     if wall is not None:
@@ -256,7 +271,7 @@ def export_glb() -> None:
         wire_ground_texture(bake_ground_shadow(
             ground, [o for o in objects if o.name.startswith("BLDG_")]))
     bpy.ops.export_scene.gltf(
-        filepath=MODEL,
+        filepath=out,
         export_format="GLB",
         export_apply=True,
         export_extras=True,
@@ -273,10 +288,11 @@ def main() -> None:
         for o in objects:
             o.data.calc_loop_triangles()
         tris = sum(len(o.data.loop_triangles) for o in objects)
-    export_glb()
-    size = os.path.getsize(MODEL)
+    out = output_path()
+    export_glb(out)
+    size = os.path.getsize(out)
     print(f"GLB_OK objects={len(objects)} meshes={len(bpy.data.meshes)} tris={tris} "
-          f"materials={len(bpy.data.materials)} size={size} bytes -> public/models/campus.glb")
+          f"materials={len(bpy.data.materials)} size={size} bytes -> {out}")
 
 
 if __name__ == "__main__":

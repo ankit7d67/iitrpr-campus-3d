@@ -24,6 +24,25 @@ test('campus GLB is served and the canvas renders', async ({ page }) => {
   expect(glErrors, glErrors.join('\n')).toEqual([]);
 });
 
+test('served GLB uses Meshopt compression and WebP textures', async ({ page }) => {
+  await page.goto('/');
+  const info = await page.evaluate(async () => {
+    const buf = await (await fetch('/models/campus.glb')).arrayBuffer();
+    const view = new DataView(buf);
+    const jsonLength = view.getUint32(12, true);
+    const json = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 20, jsonLength)));
+    return {
+      extensions: json.extensionsUsed ?? [],
+      images: (json.images ?? []).map((im: { mimeType?: string }) => im.mimeType),
+      meshes: (json.meshes ?? []).length,
+    };
+  });
+  expect(info.extensions).toContain('EXT_meshopt_compression');
+  expect(info.extensions).toContain('EXT_texture_webp');
+  expect(info.images).toEqual(['image/webp', 'image/webp']);
+  expect(info.meshes).toBe(110);
+});
+
 test('deep link ?b=<ID> opens info panel', async ({ page }) => {
   await page.goto('/?b=BLDG_1349163385');
   const dialog = page.getByRole('dialog');

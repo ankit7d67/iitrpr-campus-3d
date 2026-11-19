@@ -353,6 +353,9 @@ def add_entrance(name: str, loc: tuple[float, float, float], mat, radius: float 
     bpy.context.collection.objects.link(obj)
     obj.data.materials.append(mat)
     obj["bid"] = name
+    # 7-13: MAT_ground now carries the baked texture, so even the hidden
+    # entrance markers need a TEXCOORD_0 island for glTF validation.
+    add_uvs(obj, "ground")
     return obj
 
 
