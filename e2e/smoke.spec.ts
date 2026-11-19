@@ -23,8 +23,9 @@ test('deep link ?b=<ID> opens info panel', async ({ page }) => {
 
 test('deep link ?from=&to= sets route', async ({ page }) => {
   await page.goto('/?from=BLDG_1349163385&to=BLDG_1349204070');
-  await expect(page.getByText(/Nalanda library/i)).toBeVisible();
-  await expect(page.getByText(/Ravi Girls Hostel/i)).toBeVisible();
+  // Scope to the route panel: the tour list also shows these building names.
+  const panel = page.locator('.panel').filter({ hasText: 'Walking route' });
+  await expect(panel).toContainText(/Nalanda library → Ravi Girls Hostel/i);
 });
 
 test('route planner plans a route from the pickers', async ({ page }) => {
@@ -53,14 +54,21 @@ test('search finds a building and opens the info panel', async ({ page }) => {
   await expect(dialog).toContainText(/Nalanda/i);
 });
 
-test('tour panel lists stops and can select one', async ({ page }) => {
+test('tour panel lists stops, shows notes and moves between them', async ({ page }) => {
   await page.goto('/');
   const tour = page.locator('.tour-panel');
   await expect(tour).toBeVisible();
-  const stop = tour.getByRole('button').first();
-  if (await stop.count()) {
-    await stop.click();
-  }
+  await expect(tour.locator('ol li')).toHaveCount(9);
+  await expect(tour.locator('.tour-note-text')).toHaveText('Lecture Hall (academic).');
+  await expect(tour.locator('.tour-counter')).toHaveText('1 / 9');
+  await tour.locator('ol li button').nth(1).click();
+  await expect(tour.locator('.tour-note-text')).toHaveText('Super Academic Building (academic).');
+  await expect(tour.locator('.tour-counter')).toHaveText('2 / 9');
+  await tour.getByRole('button', { name: 'Next' }).click();
+  await expect(tour.locator('.tour-note-text')).toHaveText('Nalanda Library (academic).');
+  await expect(tour.locator('.tour-counter')).toHaveText('3 / 9');
+  await tour.getByRole('button', { name: 'Prev' }).click();
+  await expect(tour.locator('.tour-counter')).toHaveText('2 / 9');
 });
 
 test('drawer collapses and reopens with controls', async ({ page }) => {

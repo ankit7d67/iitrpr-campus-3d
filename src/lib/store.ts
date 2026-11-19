@@ -19,6 +19,9 @@ export interface CampusState {
   aboutOpen: boolean;
   night: boolean;
   drawerOpen: boolean;
+  /** Camera focus request: fly the camera to a building (BLDG_/ENTR_ id). seq
+   *  increments so re-focusing the same building re-triggers the animation. */
+  focus: { id: string; seq: number } | null;
   setQuality: (quality: Quality) => void;
   setSelectedBuildingId: (selectedBuildingId: string | null) => void;
   setSearchQuery: (searchQuery: string) => void;
@@ -31,6 +34,7 @@ export interface CampusState {
   setNight: (night: boolean) => void;
   setDrawerOpen: (drawerOpen: boolean) => void;
   toggleDrawer: () => void;
+  focusOn: (id: string) => void;
 }
 
 export const useCampusStore = create<CampusState>()((set) => ({
@@ -45,6 +49,7 @@ export const useCampusStore = create<CampusState>()((set) => ({
   aboutOpen: false,
   night: false,
   drawerOpen: true,
+  focus: null,
   setQuality: (quality) => set({ quality }),
   setSelectedBuildingId: (selectedBuildingId) => set({ selectedBuildingId }),
   setSearchQuery: (searchQuery) => set({ searchQuery }),
@@ -57,4 +62,5 @@ export const useCampusStore = create<CampusState>()((set) => ({
   setNight: (night) => set({ night }),
   setDrawerOpen: (drawerOpen) => set({ drawerOpen }),
   toggleDrawer: () => set((s) => ({ drawerOpen: !s.drawerOpen })),
+  focusOn: (id) => set((s) => ({ focus: { id, seq: (s.focus?.seq ?? 0) + 1 } })),
 }));

@@ -331,6 +331,44 @@ button {
   margin-top: 4px;
 }
 
+/* Tour (7-6) */
+.tour-panel ol {
+  margin: 4px 0;
+  padding-left: 18px;
+  max-height: 150px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tour-note {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-top: 1px solid var(--panel-border);
+  padding-top: 6px;
+}
+
+.tour-counter {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.tour-note-text {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.tour-nav {
+  display: flex;
+  gap: 6px;
+}
+
+.tour-nav button {
+  flex: 1;
+}
+
 /* Perf */
 .perf-overlay {
   position: absolute;

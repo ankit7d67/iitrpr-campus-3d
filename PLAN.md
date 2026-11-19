@@ -368,6 +368,29 @@ ships with empty data; analytics included once a GoatCounter account exists.
   a leftover `next dev` sharing the build dir); killing node and removing
   `.next` cleared it — do that first if it recurs.
 
+### 7-6 — Orientation tour (done)
+
+- `TourPanel` now reads the real `tours[0]` overlay. The old implementation
+  called `getTourStops(buildings)`, which filters on a `tour_stop` field that
+  does not exist in `campus.json` — the list was always **empty** and the e2e
+  test passed vacuously (`if (await stop.count())`).
+- New UI: 9 stop buttons (building names), active-stop highlight, note area
+  showing the stop's data-only note (`Name (category).`) with an `n / 9`
+  counter, and Prev/Next buttons (disabled at the ends). Selecting a stop
+  flies the camera to the building.
+- Camera focus: new `focus`/`focusOn(id)` store action (seq counter so
+  re-focusing the same id re-triggers) + `CameraFocus` component **inside the
+  Canvas** — resolves the building's `ENTR_<osm_id>` anchor from nav.json and
+  exponentially smooths the orbit target and camera position (320 m viewing
+  distance, min 60 m height). This same mechanism will serve 7-11 click-zoom.
+- e2e: tour test rewritten from the vacuous version to assert 9 stops, note
+  text for stops 1→2→3, counter updates and Prev/Next. The deep-link route
+  test was scoped to the route panel (the tour list now legitimately matches
+  the same building names → strict-mode violation otherwise).
+- QA: `make verify` **ALL GREEN** (34 unit tests + build), e2e **18/18**,
+  numeric ROAD_QA/PAD_QA/DEM_GRID/CHECK_OK all PASS (model unchanged). Fresh
+  `ui-desktop.png` / `ui-phone.png`.
+
 ## Fixes
 
 - **(a)** Pad faces + retaining walls → `MAT_ground` via 3rd BLDG material slot (commit `08947bd`): 218 primitives, 4 materials, tris unchanged 26,654. verify + e2e 14/14.

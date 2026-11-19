@@ -6,6 +6,7 @@ import { loadScatter } from '../lib/data';
 import { useCampusStore } from '../lib/store';
 import type { ScatterEntry } from '../lib/types';
 import { RouteRenderer } from './RouteRenderer';
+import { CameraFocus } from './CameraFocus';
 
 const CAMPUS_GLB = '/models/campus.glb';
 
@@ -119,6 +120,7 @@ export function CampusScene() {
       <Trees scatter={scatter} />
       {/* Route line must render inside the Canvas (drei <Line> needs R3F context) */}
       {route && <RouteRenderer fromId={route.fromId} toId={route.toId} />}
+      <CameraFocus />
       <ContactShadows position={[0, 0.1, 0]} opacity={0.35} scale={2500} blur={2.5} far={60} />
       <OrbitControls enablePan enableDamping makeDefault target={[0, 0, 0]} maxDistance={8000} />
     </Canvas>
