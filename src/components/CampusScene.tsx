@@ -3,6 +3,7 @@ import { OrbitControls, ContactShadows, Gltf } from '@react-three/drei';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { loadScatter } from '../lib/data';
+import { getSunInfo } from '../lib/sun';
 import { useCampusStore } from '../lib/store';
 import type { ScatterEntry } from '../lib/types';
 import { RouteRenderer } from './RouteRenderer';
@@ -71,9 +72,28 @@ export function CampusScene() {
   const quality = useCampusStore((s) => s.quality);
   const glbEnabled = quality !== 'low';
   const night = useCampusStore((s) => s.night);
+  const sunUtcMs = useCampusStore((s) => s.sunUtcMs);
   const route = useCampusStore((s) => s.route);
   const [scatter, setScatter] = useState<ScatterEntry[]>([]);
   const gltfRef = useRef<THREE.Group>(null);
+
+  // Time-of-day lighting (7-7): the solar model drives the key light's
+  // direction, colour and intensity. `dim` = manual night toggle OR the sun
+  // below the horizon at the selected time — windows glow in either case.
+  const sun = useMemo(() => getSunInfo(sunUtcMs), [sunUtcMs]);
+  const dim = night || sun.night;
+  const elevation = Math.max(sun.elevationDeg, 0);
+  const day = Math.min(elevation / 30, 1);
+  const keyIntensity = dim ? 0.15 : 0.4 + 1.2 * day;
+  const keyColor = dim ? '#8fa8dd' : elevation < 12 ? '#ffc98a' : '#fff4e0';
+  const ambientIntensity = dim ? 0.25 : 0.4 + 0.3 * day;
+  const keyPosition = useMemo<[number, number, number]>(() => {
+    const az = (sun.azimuthDeg * Math.PI) / 180;
+    const el = (Math.max(sun.elevationDeg, 6) * Math.PI) / 180;
+    // Scene axes: x = east, y = up, z = −north.
+    const r = 900;
+    return [Math.cos(el) * Math.sin(az) * r, Math.sin(el) * r, -Math.cos(el) * Math.cos(az) * r];
+  }, [sun.azimuthDeg, sun.elevationDeg]);
 
   useEffect(() => {
     let cancelled = false;
@@ -88,8 +108,8 @@ export function CampusScene() {
   }, []);
 
   useEffect(() => {
-    applyNight(gltfRef.current, night);
-  }, [night]);
+    applyNight(gltfRef.current, dim);
+  }, [dim]);
 
   // Attach the loaded model: hide the ENTR_* entrance markers (they are visual
   // anchors for nav.json, which routing uses by id — the meshes are not needed)
@@ -101,7 +121,8 @@ export function CampusScene() {
     group.traverse((obj) => {
       if (obj.name.startsWith('ENTR_')) obj.visible = false;
     });
-    applyNight(group, useCampusStore.getState().night);
+    const st = useCampusStore.getState();
+    applyNight(group, st.night || getSunInfo(st.sunUtcMs).night);
   }, []);
 
   return (
@@ -111,9 +132,9 @@ export function CampusScene() {
       gl={{ antialias: glbEnabled, alpha: true }}
       shadows={glbEnabled}
     >
-      <ambientLight intensity={0.7} />
-      <directionalLight position={[300, 500, 200]} intensity={1.6} castShadow={glbEnabled} shadow-mapSize={[2048, 2048]} color="#fff4e0" />
-      <directionalLight position={[-300, 200, -250]} intensity={0.35} />
+      <ambientLight intensity={ambientIntensity} />
+      <directionalLight position={keyPosition} intensity={keyIntensity} castShadow={glbEnabled} shadow-mapSize={[2048, 2048]} color={keyColor} />
+      <directionalLight position={[-300, 200, -250]} intensity={dim ? 0.1 : 0.35} />
       <Suspense fallback={null}>
         {glbEnabled ? <Gltf src={CAMPUS_GLB} ref={attachGltf} /> : null}
       </Suspense>

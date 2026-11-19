@@ -369,6 +369,21 @@ button {
   flex: 1;
 }
 
+/* Sun (7-7) */
+.sun-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.sun-actions button {
+  flex: 1;
+}
+
+.sun-info {
+  margin: 0;
+  font-size: 0.78rem;
+}
+
 /* Perf */
 .perf-overlay {
   position: absolute;

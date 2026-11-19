@@ -391,6 +391,36 @@ ships with empty data; analytics included once a GoatCounter account exists.
   numeric ROAD_QA/PAD_QA/DEM_GRID/CHECK_OK all PASS (model unchanged). Fresh
   `ui-desktop.png` / `ui-phone.png`.
 
+### 7-7 — Time of day (done, solar model rewritten)
+
+- **The solar model was broken**: `computeSun()` mixed degrees into radian
+  expressions (`decl + asin(...)`, wrong hour-angle scaling), so elevation/azimuth
+  were nonsense — nothing consumed them until now. `HOUR_MS` was also 10× too
+  big (`36_000_000` = 10 h), making `IST_OFFSET_MS` 55 h and `formatTime`
+  off by 1.5 h. Both fixed; unit tests now pin the physics.
+- Rewritten `computeSun()` builds the sun unit vector in ENU coordinates for
+  the campus lat/lon (30.9704 N, 76.4691 E) with a proper solar-noon longitude
+  correction; sunrise/sunset use the standard hour-angle formula
+  (`H0 = acos((sin h0 − sin φ sin δ)/(cos φ cos δ))`, h0 = −0.833°).
+  Verified: 15 Jun → sunrise 05:19 / sunset 19:28 IST, noon elevation 82°,
+  midnight −35°, morning azimuth in the east / afternoon in the west.
+- **Scene lighting is now driven by the selected time**: key directional light
+  takes its position from azimuth/elevation (900 m out, x=east/z=−north),
+  intensity and colour follow elevation (bright `#fff4e0` day → `#ffc98a`
+  below 12° → dim `#8fa8dd` moonlight when the sun is down), ambient scales
+  too, and the window-glow (`applyNight`) triggers on *either* the manual
+  night toggle *or* the sun being below the horizon at the chosen time.
+- `SunPanel`: shows `Elevation …° · azimuth …°` and `Sunrise … · sunset …`,
+  adds a **Now** button, and the datetime-local input round-trips as IST
+  (`toLocalInputValue`/`fromLocalInputValue` — the old parse used the browser
+  timezone while the display used IST). Default `sunUtcMs` is a fixed
+  10:30 IST summer timestamp (deterministic SSR/client, bright first load)
+  instead of `Date.now()`.
+- QA: `make verify` **ALL GREEN** — unit tests 34 → **38** (solar correctness,
+  azimuth morning/afternoon, sunrise/sunset windows, IST round-trip), e2e
+  **20/20** (new "sun panel shows solar info and reacts to time changes"),
+  numeric ROAD/PAD/DEM all PASS (model unchanged). Fresh screenshots.
+
 ## Fixes
 
 - **(a)** Pad faces + retaining walls → `MAT_ground` via 3rd BLDG material slot (commit `08947bd`): 218 primitives, 4 materials, tris unchanged 26,654. verify + e2e 14/14.

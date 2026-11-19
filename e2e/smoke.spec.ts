@@ -41,6 +41,20 @@ test('route planner plans a route from the pickers', async ({ page }) => {
   await expect(panel.getByRole('button', { name: 'Route', exact: true })).toBeVisible();
 });
 
+test('sun panel shows solar info and reacts to time changes', async ({ page }) => {
+  await page.goto('/');
+  const sun = page.locator('.sun-panel');
+  await expect(sun).toBeVisible();
+  const elev = sun.locator('.sun-elevation');
+  await expect(elev).toContainText('Elevation');
+  await expect(sun).toContainText(/Sunrise \d\d:\d\d · sunset \d\d:\d\d/);
+  const before = await elev.innerText();
+  await sun.locator('#sun-time').fill('2026-06-15T12:30');
+  await expect(elev).not.toHaveText(before);
+  await sun.getByRole('button', { name: 'Now' }).click();
+  await expect(elev).not.toHaveText(before);
+});
+
 test('search finds a building and opens the info panel', async ({ page }) => {
   await page.goto('/');
   const input = page.getByPlaceholder('Search buildings, hostels, departments');

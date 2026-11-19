@@ -43,7 +43,7 @@ export const useCampusStore = create<CampusState>()((set) => ({
   searchQuery: '',
   route: null,
   tourStopIndex: 0,
-  sunUtcMs: Date.now(),
+  sunUtcMs: Date.UTC(2026, 5, 15, 5, 0), // fixed 10:30 IST summer default (deterministic SSR/client)
   perfFps: null,
   infoOpen: false,
   aboutOpen: false,
